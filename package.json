@@ -10,7 +10,18 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "docker:setup": "bash scripts/dev-docker.sh setup",
+    "docker:build": "bash scripts/dev-docker.sh build",
+    "docker:start": "bash scripts/dev-docker.sh start",
+    "docker:stop": "bash scripts/dev-docker.sh stop",
+    "docker:restart": "bash scripts/dev-docker.sh restart",
+    "docker:logs": "bash scripts/dev-docker.sh logs",
+    "docker:db:reset": "bash scripts/dev-docker.sh db reset",
+    "docker:db:migrate": "bash scripts/dev-docker.sh db migrate",
+    "docker:db:seed": "bash scripts/dev-docker.sh db seed",
+    "docker:db:studio": "bash scripts/dev-docker.sh db studio",
+    "docker:cleanup": "bash scripts/dev-docker.sh cleanup"
   },
   "dependencies": {
     "@prisma/client": "^5.6.0",
