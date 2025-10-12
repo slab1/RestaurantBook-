@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  RESTAURANT_OWNER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  role      UserRole @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  bookings    Booking[]
+  restaurants Restaurant[]
+  reviews     Review[]
+
+  @@map("users")
+}
+
+model Restaurant {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  email       String
+  phone       String
+  address     String
+  latitude    Float?
+  longitude   Float?
+  cuisine     String?
+  priceRange  String? // $, $$, $$$, $$$$
+  rating      Float?  @default(0)
+  imageUrl    String?
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Owner relation
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  // Relations
+  tables          Table[]
+  bookings        Booking[]
+  reviews         Review[]
+  operatingHours  OperatingHours[]
+
+  @@map("restaurants")
+}
+
+model Table {
+  id           String @id @default(cuid())
+  name         String // e.g., "Table 1", "Booth A"
+  capacity     Int
+  isAvailable  Boolean @default(true)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  // Relations
+  bookings Booking[]
+
+  @@map("tables")
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  date         DateTime
+  time         String // Format: "HH:MM"
+  partySize    Int
+  status       BookingStatus @default(PENDING)
+  specialNotes String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  customerId   String
+  customer     User       @relation(fields: [customerId], references: [id])
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  tableId      String?
+  table        Table?     @relation(fields: [tableId], references: [id])
+  payment      Payment?
+
+  @@map("bookings")
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  amount         Float
+  currency       String        @default("usd")
+  status         PaymentStatus @default(PENDING)
+  stripePaymentId String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relations
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  rating       Int      // 1-5 stars
+  comment      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  customerId   String
+  customer     User       @relation(fields: [customerId], references: [id])
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@map("reviews")
+}
+
+model OperatingHours {
+  id           String @id @default(cuid())
+  dayOfWeek    Int    // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  openTime     String // Format: "HH:MM"
+  closeTime    String // Format: "HH:MM"
+  isClosed     Boolean @default(false)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, dayOfWeek])
+  @@map("operating_hours")
+}
