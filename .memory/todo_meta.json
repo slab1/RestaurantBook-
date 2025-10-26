@@ -5,14 +5,14 @@
         "id": "1",
         "content": "Mobile App Development - React Native Progressive Web App",
         "details": "Convert existing Next.js web app to mobile-optimized PWA with offline capabilities, push notifications, and native mobile features like camera integration for QR menu scanning",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
         "content": "Advanced AI Recommendation Engine",
         "details": "Implement ML-powered recommendation system using collaborative filtering, content-based filtering, and hybrid approach. Include restaurant suggestions based on user preferences, location, past bookings, time patterns, and social data",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "3": {

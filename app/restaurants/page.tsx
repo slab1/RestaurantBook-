@@ -1,14 +1,23 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { RestaurantCard } from '@/components/restaurant/restaurant-card'
+import { MobileRestaurantCard } from '@/components/restaurant/mobile-restaurant-card'
 import { SearchBar } from '@/components/restaurant/search-bar'
+import { PullToRefresh } from '@/components/ui/pull-to-refresh'
+import { QRScanner } from '@/components/ui/qr-scanner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { MobileBookingForm } from '@/components/booking/mobile-booking-form'
+import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/components/providers/auth-provider'
+import { usePullToRefresh } from '@/hooks/useMobileGestures'
 import axios from 'axios'
-import { Loader2, Filter } from 'lucide-react'
+import { Loader2, Filter, QrCode, MapPin, Grid, List } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 interface Restaurant {
   id: string
@@ -20,6 +29,8 @@ interface Restaurant {
   rating: number
   imageUrl: string
   distance?: number
+  isOpen?: boolean
+  nextAvailableTime?: string
   _count: {
     reviews: number
   }
@@ -27,8 +38,16 @@ interface Restaurant {
 
 export default function RestaurantsPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const { user } = useAuth()
+  const { toast } = useToast()
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [showQRScanner, setShowQRScanner] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null)
+  const [showBookingForm, setShowBookingForm] = useState(false)
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 12,
@@ -52,7 +71,7 @@ export default function RestaurantsPage() {
     fetchRestaurants(1)
   }, [searchParams])
 
-  const fetchRestaurants = async (page: number) => {
+  const fetchRestaurants = async (page: number = pagination.page) => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -70,8 +89,26 @@ export default function RestaurantsPage() {
       setPagination(response.data.pagination)
     } catch (error) {
       console.error('Error fetching restaurants:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to load restaurants. Please try again.',
+        variant: 'destructive',
+      })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    try {
+      await fetchRestaurants(1)
+      toast({
+        title: 'Updated',
+        description: 'Restaurant list refreshed',
+      })
+    } finally {
+      setRefreshing(false)
     }
   }
 
@@ -81,75 +118,198 @@ export default function RestaurantsPage() {
   }
 
   const clearFilters = () => {
-    window.location.href = '/restaurants'
+    router.push('/restaurants')
+  }
+
+  const handleQRCodeScan = (data: string) => {
+    // Handle QR code scanning
+    try {
+      const restaurantData = JSON.parse(data)
+      if (restaurantData.restaurantId) {
+        router.push(`/restaurants/${restaurantData.restaurantId}`)
+      }
+    } catch (error) {
+      // If it's not JSON, it might be a URL
+      if (data.startsWith('http')) {
+        window.open(data, '_blank')
+      } else {
+        toast({
+          title: 'QR Code Scanned',
+          description: `Scanned: ${data}`,
+        })
+      }
+    }
+  }
+
+  const handleBook = (restaurant: Restaurant) => {
+    setSelectedRestaurant(restaurant)
+    setShowBookingForm(true)
+  }
+
+  const handleBookSubmit = async (bookingData: any) => {
+    // Handle booking submission
+    console.log('Booking data:', bookingData, 'for restaurant:', selectedRestaurant?.name)
+    
+    try {
+      const response = await axios.post('/api/bookings', {
+        ...bookingData,
+        restaurantId: selectedRestaurant?.id,
+      })
+      
+      setShowBookingForm(false)
+      setSelectedRestaurant(null)
+      
+      toast({
+        title: 'Booking Confirmed!',
+        description: `Your table has been booked at ${selectedRestaurant?.name}`,
+      })
+      
+      router.push('/bookings')
+    } catch (error) {
+      throw new Error('Booking failed')
+    }
+  }
+
+  const handleViewMenu = (restaurantId: string) => {
+    router.push(`/restaurants/${restaurantId}/menu`)
+  }
+
+  const handleShare = async (restaurantId: string) => {
+    const restaurant = restaurants.find(r => r.id === restaurantId)
+    if (restaurant) {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: restaurant.name,
+            text: `Check out ${restaurant.name} - ${restaurant.cuisine}`,
+            url: `${window.location.origin}/restaurants/${restaurantId}`,
+          })
+        } catch (error) {
+          // Share canceled or failed
+        }
+      } else {
+        // Fallback to copying URL
+        await navigator.clipboard.writeText(`${window.location.origin}/restaurants/${restaurantId}`)
+        toast({
+          title: 'Link Copied',
+          description: 'Restaurant link has been copied to clipboard',
+        })
+      }
+    }
   }
 
   const hasActiveFilters = searchParams.toString() !== ''
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight mb-4">
-          Discover Restaurants
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Find the perfect dining experience for any occasion
-        </p>
-      </div>
-
-      {/* Search */}
-      <SearchBar />
-
-      {/* Active Filters */}
-      {hasActiveFilters && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Filter className="h-4 w-4" />
-                <span className="text-sm font-medium">Active filters:</span>
-                {searchParams.get('query') && (
-                  <Badge variant="secondary">
-                    Query: {searchParams.get('query')}
-                  </Badge>
-                )}
-                {searchParams.get('cuisine') && (
-                  <Badge variant="secondary">
-                    Cuisine: {searchParams.get('cuisine')}
-                  </Badge>
-                )}
-                {searchParams.get('priceRange') && (
-                  <Badge variant="secondary">
-                    Price: {searchParams.get('priceRange')}
-                  </Badge>
-                )}
-                {searchParams.get('location') && (
-                  <Badge variant="secondary">
-                    Location: {searchParams.get('location')}
-                  </Badge>
-                )}
-              </div>
-              <Button variant="outline" size="sm" onClick={clearFilters}>
-                Clear all
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Results */}
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-muted-foreground">
-            {loading ? (
-              'Loading restaurants...'
-            ) : (
-              `Showing ${restaurants.length} of ${pagination.total} restaurants`
-            )}
+    <PullToRefresh onRefresh={handleRefresh} className="space-y-8">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="text-center">
+          <h1 className="text-3xl font-bold tracking-tight mb-4">
+            Discover Restaurants
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Find the perfect dining experience for any occasion
           </p>
         </div>
 
+        {/* Search and Controls */}
+        <div className="space-y-4">
+          <SearchBar />
+          
+          {/* Mobile Controls */}
+          {isMobile && (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowQRScanner(true)}
+                className="flex-1 touch-target"
+              >
+                <QrCode className="h-4 w-4 mr-2" />
+                Scan QR
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/nearby')}
+                className="flex-1 touch-target"
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                Nearby
+              </Button>
+            </div>
+          )}
+
+          {/* View Mode Toggle (Desktop) */}
+          {!isMobile && (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {loading ? (
+                  'Loading restaurants...'
+                ) : (
+                  `Showing ${restaurants.length} of ${pagination.total} restaurants`
+                )}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Active Filters */}
+        {hasActiveFilters && (
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Filter className="h-4 w-4" />
+                  <span className="text-sm font-medium">Active filters:</span>
+                  {searchParams.get('query') && (
+                    <Badge variant="secondary">
+                      Query: {searchParams.get('query')}
+                    </Badge>
+                  )}
+                  {searchParams.get('cuisine') && (
+                    <Badge variant="secondary">
+                      Cuisine: {searchParams.get('cuisine')}
+                    </Badge>
+                  )}
+                  {searchParams.get('priceRange') && (
+                    <Badge variant="secondary">
+                      Price: {searchParams.get('priceRange')}
+                    </Badge>
+                  )}
+                  {searchParams.get('location') && (
+                    <Badge variant="secondary">
+                      Location: {searchParams.get('location')}
+                    </Badge>
+                  )}
+                </div>
+                <Button variant="outline" size="sm" onClick={clearFilters}>
+                  Clear all
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Results */}
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -164,9 +324,32 @@ export default function RestaurantsPage() {
           </div>
         ) : restaurants.length > 0 ? (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className={isMobile ? 'space-y-4' : `grid ${viewMode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-6`}>
               {restaurants.map((restaurant) => (
-                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+                isMobile ? (
+                  <MobileRestaurantCard
+                    key={restaurant.id}
+                    restaurant={{
+                      ...restaurant,
+                      location: restaurant.address,
+                      image: restaurant.imageUrl,
+                      isOpen: restaurant.isOpen ?? true,
+                    }}
+                    onBook={(id) => handleBook(restaurant)}
+                    onViewMenu={handleViewMenu}
+                    onShare={handleShare}
+                    onScanQR={(id) => {
+                      // QR scanner could show restaurant menu
+                      router.push(`/restaurants/${id}/menu`)
+                    }}
+                  />
+                ) : (
+                  <RestaurantCard
+                    key={restaurant.id}
+                    restaurant={restaurant}
+                    viewMode={viewMode}
+                  />
+                )
               ))}
             </div>
 
@@ -234,6 +417,27 @@ export default function RestaurantsPage() {
           </div>
         )}
       </div>
-    </div>
+
+      {/* QR Scanner Dialog */}
+      <QRScanner
+        isOpen={showQRScanner}
+        onClose={() => setShowQRScanner(false)}
+        onScan={handleQRCodeScan}
+        title="Scan Restaurant QR Code"
+      />
+
+      {/* Booking Form Dialog */}
+      <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+          {selectedRestaurant && (
+            <MobileBookingForm
+              restaurantName={selectedRestaurant.name}
+              onSubmit={handleBookSubmit}
+              onCancel={() => setShowBookingForm(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </PullToRefresh>
   )
 }

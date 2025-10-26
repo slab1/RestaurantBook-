@@ -135,6 +135,16 @@ model User {
   giftCards         GiftCard[]
   analyticsEvents   AnalyticsEvent[]
   sessions          UserSession[]
+  recommendationLogs RecommendationLog[]
+  mlUserPreferences MLUserPreference[]
+  recommendationFeedback RecommendationFeedback[]
+  referrerReferrals Referral[] @relation("Referrer")
+  refereeReferrals Referral[] @relation("Referee")
+  referralCodes ReferralCode[]
+  socialShares SocialShare[]
+  socialShareStats SocialShareStat[]
+  userInteractions UserInteraction[]
+  userTestAssignments UserTestAssignment[]
 
   @@map("users")
 }
@@ -191,6 +201,9 @@ model Restaurant {
   analyticsEvents AnalyticsEvent[]
   staff           RestaurantStaff[]
   apiKeys         ApiKey[]
+  restaurantSimilarities RestaurantSimilarity[] @relation("RestaurantSimilarities")
+  similarTo       RestaurantSimilarity[] @relation("SimilarRestaurants")
+  socialShares    SocialShare[]
 
   @@index([latitude, longitude])
   @@index([cuisine])
@@ -265,6 +278,7 @@ model Booking {
   payments      Payment[]
   childBookings Booking[]     @relation("RecurringBookings")
   parentBooking Booking?      @relation("RecurringBookings", fields: [parentBookingId], references: [id])
+  socialShares  SocialShare[]
 
   @@index([bookingTime])
   @@index([status])
@@ -713,7 +727,7 @@ model ReferralCode {
   updatedAt DateTime @updatedAt
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  referral  Referral?
+  referrals Referral[]
 
   @@index([userId])
   @@index([code])
@@ -735,7 +749,7 @@ model Referral {
 
   referrer        User            @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
   referee         User            @relation("Referee", fields: [refereeId], references: [id], onDelete: Cascade)
-  code            ReferralCode    @relation(fields: [referralCode], references: [code])
+  codeRelation    ReferralCode    @relation(fields: [referralCode], references: [code])
 
   @@unique([referralCode, refereeId])
   @@index([referrerId])
@@ -787,4 +801,125 @@ enum InteractionType {
   REFERRAL_SENT
   REVIEW_SUBMITTED
   APP_SHARE
+}
+
+// ML Recommendation System Models
+
+// Track user preferences learned by the ML system
+model MLUserPreference {
+  id              String   @id @default(cuid())
+  userId          String
+  preferenceType  String   // cuisine, price_range, location, time_preference, etc.
+  preferenceValue String   // Store as string for unique constraint
+  confidenceScore Decimal  @default(0) @db.Decimal(3, 2) // 0.00 to 1.00
+  source          String   // booking_history, review_patterns, explicit_input, etc.
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, preferenceType, preferenceValue])
+  @@index([userId, preferenceType])
+  @@index([confidenceScore])
+  @@map("ml_user_preferences")
+}
+
+// Log all recommendation generation events for analysis
+model RecommendationLog {
+  id               String   @id @default(cuid())
+  userId           String?
+  restaurantIds    String[] // Array of recommended restaurant IDs
+  algorithmUsed    String   // collaborative_user, collaborative_item, content_based, hybrid, etc.
+  rankingScores    Json     // Scores for each restaurant
+  contextData      Json?    // Location, time, weather, etc.
+  userInteraction  String?  // clicked, booked, dismissed, ignored
+  interactionTime  DateTime?
+  createdAt        DateTime @default(now())
+
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([algorithmUsed])
+  @@index([createdAt])
+  @@map("recommendation_logs")
+}
+
+// Track restaurant-to-restaurant similarities
+model RestaurantSimilarity {
+  id                    String     @id @default(cuid())
+  restaurantId          String
+  similarRestaurantId   String
+  similarityScore       Decimal    @db.Decimal(5, 4) // 0.0000 to 1.0000
+  similarityType        String     // collaborative, content_based, hybrid
+  featureOverlap        Json?      // Detailed similarity breakdown
+  computedAt            DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  restaurant            Restaurant @relation("RestaurantSimilarities", fields: [restaurantId], references: [id], onDelete: Cascade)
+  similarRestaurant     Restaurant @relation("SimilarRestaurants", fields: [similarRestaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, similarRestaurantId, similarityType])
+  @@index([restaurantId, similarityScore])
+  @@index([similarRestaurantId])
+  @@map("restaurant_similarities")
+}
+
+// Track user feedback on recommendations
+model RecommendationFeedback {
+  id               String   @id @default(cuid())
+  userId           String
+  restaurantId     String
+  recommendationId String?  // Reference to RecommendationLog if available
+  feedbackType     String   // positive, negative, neutral
+  action           String   // clicked, booked, dismissed, rated, reviewed
+  rating           Int?     // 1-5 if user rated
+  context          Json?    // Additional context data
+  createdAt        DateTime @default(now())
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, feedbackType])
+  @@index([restaurantId, feedbackType])
+  @@index([createdAt])
+  @@map("recommendation_feedback")
+}
+
+// Track trending restaurants by location and time
+model TrendingRestaurant {
+  id               String   @id @default(cuid())
+  restaurantId     String
+  location         String   // City or region
+  trendScore       Decimal  @db.Decimal(10, 2)
+  bookingCount     Int      @default(0)
+  viewCount        Int      @default(0)
+  shareCount       Int      @default(0)
+  timeWindow       String   // daily, weekly, monthly
+  date             DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([restaurantId, location, timeWindow, date])
+  @@index([location, trendScore])
+  @@index([date])
+  @@map("trending_restaurants")
+}
+
+// Store user-restaurant interaction matrix for collaborative filtering
+model UserRestaurantInteraction {
+  id               String   @id @default(cuid())
+  userId           String
+  restaurantId     String
+  interactionScore Decimal  @default(0) @db.Decimal(5, 2) // Weighted score based on actions
+  viewCount        Int      @default(0)
+  bookingCount     Int      @default(0)
+  reviewRating     Int?     // Last review rating if exists
+  lastInteraction  DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, restaurantId])
+  @@index([userId, interactionScore])
+  @@index([restaurantId, interactionScore])
+  @@index([lastInteraction])
+  @@map("user_restaurant_interactions")
 }

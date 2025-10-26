@@ -42,7 +42,9 @@
     "start:prod": "cross-env NODE_ENV=production next start",
     "server:dev": "nodemon server/index.ts",
     "server:build": "tsc -p server/tsconfig.json",
-    "server:start": "node dist/server/index.js"
+    "server:start": "node dist/server/index.js",
+    "ml:compute-similarities": "tsx scripts/compute-restaurant-similarities.ts",
+    "ml:test": "tsx scripts/test-recommendation-engine.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.6.0",
@@ -124,7 +126,12 @@
     "passport-facebook": "^3.0.0",
     "csv-parser": "^3.0.0",
     "fast-csv": "^4.3.6",
-    "excel4node": "^1.8.2"
+    "excel4node": "^1.8.2",
+    "workbox-precaching": "^7.0.0",
+    "workbox-routing": "^7.0.0",
+    "workbox-strategies": "^7.0.0",
+    "workbox-window": "^7.0.0",
+    "qr-scanner": "^1.2.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
