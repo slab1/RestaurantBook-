@@ -8,6 +8,7 @@ import { MobileBottomNav, MobileHeader } from '@/components/layout/mobile-nav'
 import { PWAInstallPrompt } from '@/components/pwa/pwa-install-prompt'
 import { OfflineIndicator, OfflineContent } from '@/components/pwa/offline-components'
 import { AuthProvider } from '@/components/providers/auth-provider'
+import { I18nProvider } from '@/lib/i18n/i18n-context'
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -112,36 +113,38 @@ export default function RootLayout({
           }}
         />
         <AuthProvider>
-          <ToastProvider>
-            <div className="min-h-screen bg-background relative">
-              {/* Desktop Navigation */}
-              <div className="hidden md:block">
-                <Navbar />
+          <I18nProvider>
+            <ToastProvider>
+              <div className="min-h-screen bg-background relative">
+                {/* Desktop Navigation */}
+                <div className="hidden md:block">
+                  <Navbar />
+                </div>
+                
+                {/* Mobile Header */}
+                <div className="md:hidden">
+                  <MobileHeader title="RestaurantBook" />
+                </div>
+
+                {/* Offline Indicator */}
+                <OfflineIndicator />
+
+                {/* Main Content */}
+                <main className="container mx-auto px-4 py-8 md:pb-8 pb-20 safe-area-bottom">
+                  <OfflineContent>
+                    {children}
+                  </OfflineContent>
+                </main>
+
+                {/* Mobile Bottom Navigation */}
+                <MobileBottomNav />
+
+                {/* PWA Install Prompt */}
+                <PWAInstallPrompt />
               </div>
-              
-              {/* Mobile Header */}
-              <div className="md:hidden">
-                <MobileHeader title="RestaurantBook" />
-              </div>
-
-              {/* Offline Indicator */}
-              <OfflineIndicator />
-
-              {/* Main Content */}
-              <main className="container mx-auto px-4 py-8 md:pb-8 pb-20 safe-area-bottom">
-                <OfflineContent>
-                  {children}
-                </OfflineContent>
-              </main>
-
-              {/* Mobile Bottom Navigation */}
-              <MobileBottomNav />
-
-              {/* PWA Install Prompt */}
-              <PWAInstallPrompt />
-            </div>
-            <Toaster />
-          </ToastProvider>
+              <Toaster />
+            </ToastProvider>
+          </I18nProvider>
         </AuthProvider>
       </body>
     </html>

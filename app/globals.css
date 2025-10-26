@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* RTL (Right-to-Left) Language Support */
+@import '../styles/rtl.css';
+
 /* PWA specific styles */
 @layer base {
   :root {
