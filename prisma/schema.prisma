@@ -597,3 +597,194 @@ model SystemConfig {
 
   @@map("system_config")
 }
+
+// A/B Testing Models
+model ABTest {
+  id               String   @id @default(cuid())
+  name             String
+  description      String?
+  variants         Json     // Array of ABTestVariant objects
+  trafficAllocation Json    // Object mapping variant IDs to percentages
+  startDate        DateTime
+  endDate          DateTime
+  targetingRules   Json?    // ABTargetingRules object
+  status           ABTestStatus @default(DRAFT)
+  winnerVariant    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  metrics          ABTestMetric[]
+  assignments      UserTestAssignment[]
+
+  @@map("ab_tests")
+}
+
+model ABTestMetric {
+  id          String   @id @default(cuid())
+  testId      String
+  variantId   String
+  date        String   // YYYY-MM-DD format for aggregation
+  impressions Int      @default(0)
+  conversions Int      @default(0)
+  revenue     Decimal  @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  test        ABTest   @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, variantId, date])
+  @@map("ab_test_metrics")
+}
+
+model UserTestAssignment {
+  id          String   @id @default(cuid())
+  userId      String
+  testId      String
+  variantId   String
+  assignedAt  DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test        ABTest   @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, testId])
+  @@map("user_test_assignments")
+}
+
+model UserInteraction {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // INTERACTION_TYPE enum
+  metadata  Json?    // Flexible metadata storage
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("user_interactions")
+}
+
+// Social Sharing Models
+model SocialShare {
+  id          String   @id @default(cuid())
+  userId      String
+  platform    String   // FACEBOOK, TWITTER, WHATSAPP, etc.
+  shareType   String   // BOOKING_SHARE, RESTAURANT_SHARE, REVIEW_SHARE
+  bookingId   String?
+  restaurantId String?
+  metadata    Json?
+  sharedAt    DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking     Booking? @relation(fields: [bookingId], references: [id])
+  restaurant  Restaurant? @relation(fields: [restaurantId], references: [id])
+
+  @@index([userId, platform])
+  @@index([userId, sharedAt])
+  @@map("social_shares")
+}
+
+model SocialShareStat {
+  id          String   @id @default(cuid())
+  userId      String
+  platform    String
+  shareCount  Int      @default(0)
+  pointsEarned Int     @default(0)
+  lastSharedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform])
+  @@index([platform, shareCount])
+  @@map("social_share_stats")
+}
+
+// Referral System Models
+model ReferralCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  userId    String
+  used      Boolean  @default(false)
+  usedAt    DateTime?
+  usedBy    String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referral  Referral?
+
+  @@index([userId])
+  @@index([code])
+  @@index([expiresAt])
+  @@map("referral_codes")
+}
+
+model Referral {
+  id              String          @id @default(cuid())
+  referralCode    String
+  referrerId      String
+  refereeId       String
+  status          ReferralStatus  @default(PENDING)
+  pointsAwarded   Int             @default(0)
+  metadata        Json?
+  createdAt       DateTime        @default(now())
+  completedAt     DateTime?
+  firstBookingAt  DateTime?
+
+  referrer        User            @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referee         User            @relation("Referee", fields: [refereeId], references: [id], onDelete: Cascade)
+  code            ReferralCode    @relation(fields: [referralCode], references: [code])
+
+  @@unique([referralCode, refereeId])
+  @@index([referrerId])
+  @@index([refereeId])
+  @@index([status])
+  @@map("referrals")
+}
+
+model ReferralConfig {
+  id                    String   @id @default(cuid())
+  referralPointsReward  Int      @default(50)
+  refereePointsReward   Int      @default(25)
+  maxReferralsPerUser   Int      @default(100)
+  minimumBookingAmount  Decimal  @default(20)
+  referralExpiryDays    Int      @default(365)
+  maxReferralsPerDay    Int      @default(10)
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("referral_config")
+}
+
+enum ReferralStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum ABTestStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum InteractionType {
+  AB_TEST_IMPRESSION
+  AB_TEST_CONVERSION
+  PAGE_VIEW
+  BOOKING_INITIATED
+  BOOKING_COMPLETED
+  SEARCH_QUERY
+  RESTAURANT_VIEWED
+  WAITLIST_JOINED
+  LOYALTY_EARNED
+  REFERRAL_SENT
+  REVIEW_SUBMITTED
+  APP_SHARE
+}
