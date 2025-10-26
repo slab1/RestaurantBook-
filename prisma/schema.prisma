@@ -124,88 +124,95 @@ model User {
   updatedAt         DateTime  @updatedAt
 
   // Relations
-  bookings          Booking[]
-  reviews           Review[]
-  restaurants       Restaurant[]
-  payments          Payment[]
-  waitlistEntries   WaitlistEntry[]
-  loyaltyTransactions LoyaltyTransaction[]
-  userPreferences   UserPreference[]
-  notifications     Notification[]
-  giftCards         GiftCard[]
-  analyticsEvents   AnalyticsEvent[]
-  sessions          UserSession[]
-  recommendationLogs RecommendationLog[]
-  mlUserPreferences MLUserPreference[]
-  recommendationFeedback RecommendationFeedback[]
-  referrerReferrals Referral[] @relation("Referrer")
-  refereeReferrals Referral[] @relation("Referee")
-  referralCodes ReferralCode[]
-  socialShares SocialShare[]
-  socialShareStats SocialShareStat[]
-  userInteractions UserInteraction[]
-  userTestAssignments UserTestAssignment[]
+  bookings                Booking[]
+  reviews                 Review[]
+  restaurants             Restaurant[]
+  payments                Payment[]
+  waitlistEntries         WaitlistEntry[]
+  loyaltyTransactions     LoyaltyTransaction[]
+  userPreferences         UserPreference[]
+  notifications           Notification[]
+  giftCards               GiftCard[]
+  analyticsEvents         AnalyticsEvent[]
+  sessions                UserSession[]
+  recommendationLogs      RecommendationLog[]
+  mlUserPreferences       MLUserPreference[]
+  recommendationFeedback  RecommendationFeedback[]
+  referrerReferrals       Referral[]               @relation("Referrer")
+  refereeReferrals        Referral[]               @relation("Referee")
+  referralCodes           ReferralCode[]
+  socialShares            SocialShare[]
+  socialShareStats        SocialShareStat[]
+  userInteractions        UserInteraction[]
+  userTestAssignments     UserTestAssignment[]
   userLanguagePreferences UserLanguagePreference[]
+  deliveryOrders          DeliveryOrder[]
+  deliveryFeedback        DeliveryFeedback[]
 
   @@map("users")
 }
 
 // Enhanced Restaurant model
 model Restaurant {
-  id              String   @id @default(cuid())
-  name            String
-  description     String?
-  address         String
-  city            String
-  state           String
-  zipCode         String
-  country         String   @default("US")
-  phone           String
-  email           String
-  website         String?
-  socialMedia     Json?    // { instagram, facebook, twitter }
-  cuisine         String[]
-  priceRange      String   // $, $$, $$$, $$$$
-  rating          Float    @default(0)
-  totalReviews    Int      @default(0)
-  latitude        Float?
-  longitude       Float?
-  images          String[]
-  coverImage      String?
-  amenities       String[]
-  features        String[] // outdoor_seating, wifi, parking, etc.
-  operatingHours  Json
-  specialHours    Json?    // holidays, special events
-  capacity        Int      @default(0)
-  reservationPolicy String?
+  id                 String   @id @default(cuid())
+  name               String
+  description        String?
+  address            String
+  city               String
+  state              String
+  zipCode            String
+  country            String   @default("US")
+  phone              String
+  email              String
+  website            String?
+  socialMedia        Json? // { instagram, facebook, twitter }
+  cuisine            String[]
+  priceRange         String // $, $$, $$$, $$$$
+  rating             Float    @default(0)
+  totalReviews       Int      @default(0)
+  latitude           Float?
+  longitude          Float?
+  images             String[]
+  coverImage         String?
+  amenities          String[]
+  features           String[] // outdoor_seating, wifi, parking, etc.
+  operatingHours     Json
+  specialHours       Json? // holidays, special events
+  capacity           Int      @default(0)
+  reservationPolicy  String?
   cancellationPolicy String?
-  depositRequired Boolean  @default(false)
-  depositAmount   Float?
-  loyaltyProgram  Boolean  @default(false)
-  loyaltyRate     Float    @default(0.01) // points per dollar
-  averageSeatingTime Int   @default(120) // minutes
-  isActive        Boolean  @default(true)
-  isVerified      Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  depositRequired    Boolean  @default(false)
+  depositAmount      Float?
+  loyaltyProgram     Boolean  @default(false)
+  loyaltyRate        Float    @default(0.01) // points per dollar
+  averageSeatingTime Int      @default(120) // minutes
+  isActive           Boolean  @default(true)
+  isVerified         Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   // Relations
-  ownerId         String
-  owner           User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  tables          Table[]
-  bookings        Booking[]
-  reviews         Review[]
-  payments        Payment[]
-  waitlistEntries WaitlistEntry[]
-  menuCategories  MenuCategory[]
-  promotions      Promotion[]
-  analyticsEvents AnalyticsEvent[]
-  staff           RestaurantStaff[]
-  apiKeys         ApiKey[]
-  restaurantSimilarities RestaurantSimilarity[] @relation("RestaurantSimilarities")
-  similarTo       RestaurantSimilarity[] @relation("SimilarRestaurants")
-  socialShares    SocialShare[]
+  ownerId                   String
+  owner                     User                         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  tables                    Table[]
+  bookings                  Booking[]
+  reviews                   Review[]
+  payments                  Payment[]
+  waitlistEntries           WaitlistEntry[]
+  menuCategories            MenuCategory[]
+  promotions                Promotion[]
+  analyticsEvents           AnalyticsEvent[]
+  staff                     RestaurantStaff[]
+  apiKeys                   ApiKey[]
+  restaurantSimilarities    RestaurantSimilarity[]       @relation("RestaurantSimilarities")
+  similarTo                 RestaurantSimilarity[]       @relation("SimilarRestaurants")
+  socialShares              SocialShare[]
   restaurantLanguageSupport RestaurantLanguageSupport[]
+  deliveryPlatforms         RestaurantDeliveryPlatform[]
+  deliveryOrders            DeliveryOrder[]
+  deliveryZones             DeliveryZone[]
+  deliveryFeedback          DeliveryFeedback[]
+  menuSyncLogs              MenuSyncLog[]
 
   @@index([latitude, longitude])
   @@index([cuisine])
@@ -215,22 +222,22 @@ model Restaurant {
 
 // Enhanced Table model
 model Table {
-  id           String      @id @default(cuid())
-  number       String
-  capacity     Int
-  minCapacity  Int         @default(1)
-  maxCapacity  Int?
-  status       TableStatus @default(AVAILABLE)
-  position     Json?       // { x, y, rotation } for floor plan
-  shape        String?     // round, square, rectangular
-  isActive     Boolean     @default(true)
-  isSmokingAllowed Boolean @default(false)
-  isOutdoor    Boolean     @default(false)
-  hasView      Boolean     @default(false)
-  accessibility Boolean    @default(false)
-  notes        String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id               String      @id @default(cuid())
+  number           String
+  capacity         Int
+  minCapacity      Int         @default(1)
+  maxCapacity      Int?
+  status           TableStatus @default(AVAILABLE)
+  position         Json? // { x, y, rotation } for floor plan
+  shape            String? // round, square, rectangular
+  isActive         Boolean     @default(true)
+  isSmokingAllowed Boolean     @default(false)
+  isOutdoor        Boolean     @default(false)
+  hasView          Boolean     @default(false)
+  accessibility    Boolean     @default(false)
+  notes            String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   // Relations
   restaurantId String
@@ -244,31 +251,31 @@ model Table {
 
 // Enhanced Booking model
 model Booking {
-  id                String        @id @default(cuid())
-  bookingTime       DateTime
-  partySize         Int
-  status            BookingStatus @default(PENDING)
-  specialRequests   String?
-  notes             String?
-  eventType         EventType?
+  id                  String        @id @default(cuid())
+  bookingTime         DateTime
+  partySize           Int
+  status              BookingStatus @default(PENDING)
+  specialRequests     String?
+  notes               String?
+  eventType           EventType?
   dietaryRestrictions String[]
-  seatingPreference String?      // window, quiet, outdoor
-  isRecurring       Boolean       @default(false)
-  recurringPattern  Json?         // { frequency, days, endDate }
-  parentBookingId   String?       // for recurring bookings
-  confirmationCode  String        @unique
-  reminderSent      Boolean       @default(false)
-  checkInTime       DateTime?
-  checkOutTime      DateTime?
-  actualPartySize   Int?
-  noShowReason      String?
-  source            String        @default("web") // web, mobile, phone, walkIn
-  estimatedDuration Int?          // minutes
-  isVip             Boolean       @default(false)
-  loyaltyPointsUsed Int           @default(0)
-  loyaltyPointsEarned Int         @default(0)
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  seatingPreference   String? // window, quiet, outdoor
+  isRecurring         Boolean       @default(false)
+  recurringPattern    Json? // { frequency, days, endDate }
+  parentBookingId     String? // for recurring bookings
+  confirmationCode    String        @unique
+  reminderSent        Boolean       @default(false)
+  checkInTime         DateTime?
+  checkOutTime        DateTime?
+  actualPartySize     Int?
+  noShowReason        String?
+  source              String        @default("web") // web, mobile, phone, walkIn
+  estimatedDuration   Int? // minutes
+  isVip               Boolean       @default(false)
+  loyaltyPointsUsed   Int           @default(0)
+  loyaltyPointsEarned Int           @default(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
   // Relations
   userId        String
@@ -290,25 +297,25 @@ model Booking {
 
 // Waitlist system
 model WaitlistEntry {
-  id             String    @id @default(cuid())
-  partySize      Int
-  preferredTime  DateTime
-  estimatedWait  Int?      // minutes
-  notifyByPhone  Boolean   @default(true)
-  notifyByEmail  Boolean   @default(true)
-  status         String    @default("WAITING") // WAITING, SEATED, CANCELLED, EXPIRED
-  notes          String?
-  priority       Int       @default(0)
-  expiresAt      DateTime?
-  notifiedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  partySize     Int
+  preferredTime DateTime
+  estimatedWait Int? // minutes
+  notifyByPhone Boolean   @default(true)
+  notifyByEmail Boolean   @default(true)
+  status        String    @default("WAITING") // WAITING, SEATED, CANCELLED, EXPIRED
+  notes         String?
+  priority      Int       @default(0)
+  expiresAt     DateTime?
+  notifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Relations
-  userId        String
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  restaurantId  String
-  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@index([preferredTime])
   @@index([status])
@@ -321,7 +328,7 @@ model Payment {
   amount                Float
   currency              String        @default("usd")
   status                PaymentStatus @default(PENDING)
-  paymentMethod         String?       // card, cash, gift_card, loyalty_points
+  paymentMethod         String? // card, cash, gift_card, loyalty_points
   stripePaymentIntentId String?
   stripeChargeId        String?
   refundAmount          Float?
@@ -336,12 +343,12 @@ model Payment {
   updatedAt             DateTime      @updatedAt
 
   // Relations
-  userId           String
-  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  restaurantId     String
-  restaurant       Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  bookingId        String
-  booking          Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  bookingId    String
+  booking      Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@map("payments")
@@ -349,24 +356,24 @@ model Payment {
 
 // Enhanced Review model
 model Review {
-  id           String   @id @default(cuid())
-  rating       Int      // 1-5 stars
-  comment      String?
-  images       String[]
-  foodRating   Int?     // separate ratings
-  serviceRating Int?
+  id             String    @id @default(cuid())
+  rating         Int // 1-5 stars
+  comment        String?
+  images         String[]
+  foodRating     Int? // separate ratings
+  serviceRating  Int?
   ambianceRating Int?
-  valueRating  Int?
-  isVerified   Boolean  @default(false)
-  isAnonymous  Boolean  @default(false)
-  helpfulVotes Int      @default(0)
-  reportCount  Int      @default(0)
-  isHidden     Boolean  @default(false)
-  response     String?  // restaurant response
-  responseDate DateTime?
-  visitDate    DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  valueRating    Int?
+  isVerified     Boolean   @default(false)
+  isAnonymous    Boolean   @default(false)
+  helpfulVotes   Int       @default(0)
+  reportCount    Int       @default(0)
+  isHidden       Boolean   @default(false)
+  response       String? // restaurant response
+  responseDate   DateTime?
+  visitDate      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // Relations
   userId       String
@@ -381,16 +388,16 @@ model Review {
 
 // User preferences
 model UserPreference {
-  id            String         @id @default(cuid())
-  type          PreferenceType
-  value         String
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id        String         @id @default(cuid())
+  type      PreferenceType
+  value     String
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   // Relations
-  userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_preferences")
 }
@@ -405,8 +412,8 @@ model LoyaltyTransaction {
   createdAt   DateTime               @default(now())
 
   // Relations
-  userId      String
-  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("loyalty_transactions")
 }
@@ -426,20 +433,20 @@ model GiftCard {
 
   // Relations
   purchasedById String
-  purchasedBy   User     @relation(fields: [purchasedById], references: [id], onDelete: Cascade)
+  purchasedBy   User   @relation(fields: [purchasedById], references: [id], onDelete: Cascade)
 
   @@map("gift_cards")
 }
 
 // Menu system
 model MenuCategory {
-  id          String     @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String?
-  sortOrder   Int        @default(0)
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   restaurantId String
@@ -450,50 +457,50 @@ model MenuCategory {
 }
 
 model MenuItem {
-  id           String       @id @default(cuid())
-  name         String
-  description  String?
-  price        Float
-  images       String[]
-  allergens    String[]
-  dietaryTags  String[]     // vegetarian, vegan, gluten-free, etc.
-  isAvailable  Boolean      @default(true)
-  sortOrder    Int          @default(0)
-  preparationTime Int?      // minutes
-  calories     Int?
-  spiceLevel   String?      // mild, medium, hot
-  isPopular    Boolean      @default(false)
-  isNew        Boolean      @default(false)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  price           Float
+  images          String[]
+  allergens       String[]
+  dietaryTags     String[] // vegetarian, vegan, gluten-free, etc.
+  isAvailable     Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  preparationTime Int? // minutes
+  calories        Int?
+  spiceLevel      String? // mild, medium, hot
+  isPopular       Boolean  @default(false)
+  isNew           Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
-  categoryId   String
-  category     MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@map("menu_items")
 }
 
 // Promotions
 model Promotion {
-  id          String    @id @default(cuid())
-  title       String
-  description String
-  code        String?   @unique
-  discountType String   // percentage, fixed_amount, buy_one_get_one
-  discountValue Float
-  minOrderAmount Float?
-  maxDiscount Float?
-  startDate   DateTime
-  endDate     DateTime
-  isActive    Boolean   @default(true)
-  usageLimit  Int?
-  usageCount  Int       @default(0)
-  applicableDays String[] // days of week
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  code            String?  @unique
+  discountType    String // percentage, fixed_amount, buy_one_get_one
+  discountValue   Float
+  minOrderAmount  Float?
+  maxDiscount     Float?
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean  @default(true)
+  usageLimit      Int?
+  usageCount      Int      @default(0)
+  applicableDays  String[] // days of week
   applicableHours Json?
-  targetAudience String[] // new_customers, vip, etc.
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  targetAudience  String[] // new_customers, vip, etc.
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
   restaurantId String
@@ -509,15 +516,15 @@ model Notification {
   title     String
   message   String
   status    NotificationStatus @default(PENDING)
-  channel   String             // email, sms, push
+  channel   String // email, sms, push
   metadata  Json?
   sentAt    DateTime?
   readAt    DateTime?
   createdAt DateTime           @default(now())
 
   // Relations
-  userId    String
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@map("notifications")
@@ -526,7 +533,7 @@ model Notification {
 // Analytics events
 model AnalyticsEvent {
   id         String   @id @default(cuid())
-  event      String   // page_view, booking_created, search_performed
+  event      String // page_view, booking_created, search_performed
   properties Json
   sessionId  String?
   ipAddress  String?
@@ -546,18 +553,18 @@ model AnalyticsEvent {
 
 // User sessions for security
 model UserSession {
-  id          String    @id @default(cuid())
+  id           String   @id @default(cuid())
   sessionToken String   @unique
-  ipAddress   String
-  userAgent   String
-  isActive    Boolean   @default(true)
-  expiresAt   DateTime
+  ipAddress    String
+  userAgent    String
+  isActive     Boolean  @default(true)
+  expiresAt    DateTime
   lastActivity DateTime @default(now())
-  createdAt   DateTime  @default(now())
+  createdAt    DateTime @default(now())
 
   // Relations
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([sessionToken])
   @@map("user_sessions")
@@ -570,8 +577,8 @@ model RestaurantStaff {
   lastName    String
   email       String   @unique
   phone       String?
-  role        String   // manager, host, waiter, admin
-  permissions Json     // specific permissions
+  role        String // manager, host, waiter, admin
+  permissions Json // specific permissions
   isActive    Boolean  @default(true)
   hiredAt     DateTime @default(now())
   createdAt   DateTime @default(now())
@@ -586,15 +593,15 @@ model RestaurantStaff {
 
 // API keys for external integrations
 model ApiKey {
-  id         String   @id @default(cuid())
-  name       String
-  keyHash    String   @unique
-  permissions Json    // read, write, admin
-  isActive   Boolean  @default(true)
-  lastUsedAt DateTime?
-  expiresAt  DateTime?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String    @id @default(cuid())
+  name        String
+  keyHash     String    @unique
+  permissions Json // read, write, admin
+  isActive    Boolean   @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations for restaurant-specific API keys
   restaurantId String?
@@ -616,21 +623,21 @@ model SystemConfig {
 
 // A/B Testing Models
 model ABTest {
-  id               String   @id @default(cuid())
-  name             String
-  description      String?
-  variants         Json     // Array of ABTestVariant objects
-  trafficAllocation Json    // Object mapping variant IDs to percentages
-  startDate        DateTime
-  endDate          DateTime
-  targetingRules   Json?    // ABTargetingRules object
-  status           ABTestStatus @default(DRAFT)
-  winnerVariant    String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                String       @id @default(cuid())
+  name              String
+  description       String?
+  variants          Json // Array of ABTestVariant objects
+  trafficAllocation Json // Object mapping variant IDs to percentages
+  startDate         DateTime
+  endDate           DateTime
+  targetingRules    Json? // ABTargetingRules object
+  status            ABTestStatus @default(DRAFT)
+  winnerVariant     String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
-  metrics          ABTestMetric[]
-  assignments      UserTestAssignment[]
+  metrics     ABTestMetric[]
+  assignments UserTestAssignment[]
 
   @@map("ab_tests")
 }
@@ -639,28 +646,28 @@ model ABTestMetric {
   id          String   @id @default(cuid())
   testId      String
   variantId   String
-  date        String   // YYYY-MM-DD format for aggregation
+  date        String // YYYY-MM-DD format for aggregation
   impressions Int      @default(0)
   conversions Int      @default(0)
   revenue     Decimal  @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  test        ABTest   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  test ABTest @relation(fields: [testId], references: [id], onDelete: Cascade)
 
   @@unique([testId, variantId, date])
   @@map("ab_test_metrics")
 }
 
 model UserTestAssignment {
-  id          String   @id @default(cuid())
-  userId      String
-  testId      String
-  variantId   String
-  assignedAt  DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  testId     String
+  variantId  String
+  assignedAt DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  test        ABTest   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test ABTest @relation(fields: [testId], references: [id], onDelete: Cascade)
 
   @@unique([userId, testId])
   @@map("user_test_assignments")
@@ -669,11 +676,11 @@ model UserTestAssignment {
 model UserInteraction {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // INTERACTION_TYPE enum
-  metadata  Json?    // Flexible metadata storage
+  type      String // INTERACTION_TYPE enum
+  metadata  Json? // Flexible metadata storage
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, type])
   @@map("user_interactions")
@@ -681,18 +688,18 @@ model UserInteraction {
 
 // Social Sharing Models
 model SocialShare {
-  id          String   @id @default(cuid())
-  userId      String
-  platform    String   // FACEBOOK, TWITTER, WHATSAPP, etc.
-  shareType   String   // BOOKING_SHARE, RESTAURANT_SHARE, REVIEW_SHARE
-  bookingId   String?
+  id           String   @id @default(cuid())
+  userId       String
+  platform     String // FACEBOOK, TWITTER, WHATSAPP, etc.
+  shareType    String // BOOKING_SHARE, RESTAURANT_SHARE, REVIEW_SHARE
+  bookingId    String?
   restaurantId String?
-  metadata    Json?
-  sharedAt    DateTime @default(now())
+  metadata     Json?
+  sharedAt     DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  booking     Booking? @relation(fields: [bookingId], references: [id])
-  restaurant  Restaurant? @relation(fields: [restaurantId], references: [id])
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking    Booking?    @relation(fields: [bookingId], references: [id])
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
 
   @@index([userId, platform])
   @@index([userId, sharedAt])
@@ -700,16 +707,16 @@ model SocialShare {
 }
 
 model SocialShareStat {
-  id          String   @id @default(cuid())
-  userId      String
-  platform    String
-  shareCount  Int      @default(0)
-  pointsEarned Int     @default(0)
+  id           String   @id @default(cuid())
+  userId       String
+  platform     String
+  shareCount   Int      @default(0)
+  pointsEarned Int      @default(0)
   lastSharedAt DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, platform])
   @@index([platform, shareCount])
@@ -718,17 +725,17 @@ model SocialShareStat {
 
 // Referral System Models
 model ReferralCode {
-  id        String   @id @default(cuid())
-  code      String   @unique
+  id        String    @id @default(cuid())
+  code      String    @unique
   userId    String
-  used      Boolean  @default(false)
+  used      Boolean   @default(false)
   usedAt    DateTime?
   usedBy    String?
   expiresAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   referrals Referral[]
 
   @@index([userId])
@@ -738,20 +745,20 @@ model ReferralCode {
 }
 
 model Referral {
-  id              String          @id @default(cuid())
-  referralCode    String
-  referrerId      String
-  refereeId       String
-  status          ReferralStatus  @default(PENDING)
-  pointsAwarded   Int             @default(0)
-  metadata        Json?
-  createdAt       DateTime        @default(now())
-  completedAt     DateTime?
-  firstBookingAt  DateTime?
+  id             String         @id @default(cuid())
+  referralCode   String
+  referrerId     String
+  refereeId      String
+  status         ReferralStatus @default(PENDING)
+  pointsAwarded  Int            @default(0)
+  metadata       Json?
+  createdAt      DateTime       @default(now())
+  completedAt    DateTime?
+  firstBookingAt DateTime?
 
-  referrer        User            @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
-  referee         User            @relation("Referee", fields: [refereeId], references: [id], onDelete: Cascade)
-  codeRelation    ReferralCode    @relation(fields: [referralCode], references: [code])
+  referrer     User         @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referee      User         @relation("Referee", fields: [refereeId], references: [id], onDelete: Cascade)
+  codeRelation ReferralCode @relation(fields: [referralCode], references: [code])
 
   @@unique([referralCode, refereeId])
   @@index([referrerId])
@@ -761,16 +768,16 @@ model Referral {
 }
 
 model ReferralConfig {
-  id                    String   @id @default(cuid())
-  referralPointsReward  Int      @default(50)
-  refereePointsReward   Int      @default(25)
-  maxReferralsPerUser   Int      @default(100)
-  minimumBookingAmount  Decimal  @default(20)
-  referralExpiryDays    Int      @default(365)
-  maxReferralsPerDay    Int      @default(10)
-  isActive              Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  referralPointsReward Int      @default(50)
+  refereePointsReward  Int      @default(25)
+  maxReferralsPerUser  Int      @default(100)
+  minimumBookingAmount Decimal  @default(20)
+  referralExpiryDays   Int      @default(365)
+  maxReferralsPerDay   Int      @default(10)
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   @@map("referral_config")
 }
@@ -811,14 +818,14 @@ enum InteractionType {
 model MLUserPreference {
   id              String   @id @default(cuid())
   userId          String
-  preferenceType  String   // cuisine, price_range, location, time_preference, etc.
-  preferenceValue String   // Store as string for unique constraint
+  preferenceType  String // cuisine, price_range, location, time_preference, etc.
+  preferenceValue String // Store as string for unique constraint
   confidenceScore Decimal  @default(0) @db.Decimal(3, 2) // 0.00 to 1.00
-  source          String   // booking_history, review_patterns, explicit_input, etc.
+  source          String // booking_history, review_patterns, explicit_input, etc.
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, preferenceType, preferenceValue])
   @@index([userId, preferenceType])
@@ -828,17 +835,17 @@ model MLUserPreference {
 
 // Log all recommendation generation events for analysis
 model RecommendationLog {
-  id               String   @id @default(cuid())
-  userId           String?
-  restaurantIds    String[] // Array of recommended restaurant IDs
-  algorithmUsed    String   // collaborative_user, collaborative_item, content_based, hybrid, etc.
-  rankingScores    Json     // Scores for each restaurant
-  contextData      Json?    // Location, time, weather, etc.
-  userInteraction  String?  // clicked, booked, dismissed, ignored
-  interactionTime  DateTime?
-  createdAt        DateTime @default(now())
+  id              String    @id @default(cuid())
+  userId          String?
+  restaurantIds   String[] // Array of recommended restaurant IDs
+  algorithmUsed   String // collaborative_user, collaborative_item, content_based, hybrid, etc.
+  rankingScores   Json // Scores for each restaurant
+  contextData     Json? // Location, time, weather, etc.
+  userInteraction String? // clicked, booked, dismissed, ignored
+  interactionTime DateTime?
+  createdAt       DateTime  @default(now())
 
-  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
   @@index([algorithmUsed])
@@ -848,17 +855,17 @@ model RecommendationLog {
 
 // Track restaurant-to-restaurant similarities
 model RestaurantSimilarity {
-  id                    String     @id @default(cuid())
-  restaurantId          String
-  similarRestaurantId   String
-  similarityScore       Decimal    @db.Decimal(5, 4) // 0.0000 to 1.0000
-  similarityType        String     // collaborative, content_based, hybrid
-  featureOverlap        Json?      // Detailed similarity breakdown
-  computedAt            DateTime   @default(now())
-  updatedAt             DateTime   @updatedAt
+  id                  String   @id @default(cuid())
+  restaurantId        String
+  similarRestaurantId String
+  similarityScore     Decimal  @db.Decimal(5, 4) // 0.0000 to 1.0000
+  similarityType      String // collaborative, content_based, hybrid
+  featureOverlap      Json? // Detailed similarity breakdown
+  computedAt          DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  restaurant            Restaurant @relation("RestaurantSimilarities", fields: [restaurantId], references: [id], onDelete: Cascade)
-  similarRestaurant     Restaurant @relation("SimilarRestaurants", fields: [similarRestaurantId], references: [id], onDelete: Cascade)
+  restaurant        Restaurant @relation("RestaurantSimilarities", fields: [restaurantId], references: [id], onDelete: Cascade)
+  similarRestaurant Restaurant @relation("SimilarRestaurants", fields: [similarRestaurantId], references: [id], onDelete: Cascade)
 
   @@unique([restaurantId, similarRestaurantId, similarityType])
   @@index([restaurantId, similarityScore])
@@ -871,14 +878,14 @@ model RecommendationFeedback {
   id               String   @id @default(cuid())
   userId           String
   restaurantId     String
-  recommendationId String?  // Reference to RecommendationLog if available
-  feedbackType     String   // positive, negative, neutral
-  action           String   // clicked, booked, dismissed, rated, reviewed
-  rating           Int?     // 1-5 if user rated
-  context          Json?    // Additional context data
+  recommendationId String? // Reference to RecommendationLog if available
+  feedbackType     String // positive, negative, neutral
+  action           String // clicked, booked, dismissed, rated, reviewed
+  rating           Int? // 1-5 if user rated
+  context          Json? // Additional context data
   createdAt        DateTime @default(now())
 
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, feedbackType])
   @@index([restaurantId, feedbackType])
@@ -888,17 +895,17 @@ model RecommendationFeedback {
 
 // Track trending restaurants by location and time
 model TrendingRestaurant {
-  id               String   @id @default(cuid())
-  restaurantId     String
-  location         String   // City or region
-  trendScore       Decimal  @db.Decimal(10, 2)
-  bookingCount     Int      @default(0)
-  viewCount        Int      @default(0)
-  shareCount       Int      @default(0)
-  timeWindow       String   // daily, weekly, monthly
-  date             DateTime
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id           String   @id @default(cuid())
+  restaurantId String
+  location     String // City or region
+  trendScore   Decimal  @db.Decimal(10, 2)
+  bookingCount Int      @default(0)
+  viewCount    Int      @default(0)
+  shareCount   Int      @default(0)
+  timeWindow   String // daily, weekly, monthly
+  date         DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([restaurantId, location, timeWindow, date])
   @@index([location, trendScore])
@@ -914,7 +921,7 @@ model UserRestaurantInteraction {
   interactionScore Decimal  @default(0) @db.Decimal(5, 2) // Weighted score based on actions
   viewCount        Int      @default(0)
   bookingCount     Int      @default(0)
-  reviewRating     Int?     // Last review rating if exists
+  reviewRating     Int? // Last review rating if exists
   lastInteraction  DateTime @default(now())
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -930,18 +937,18 @@ model UserRestaurantInteraction {
 
 // Track user language preferences and history
 model UserLanguagePreference {
-  id                String   @id @default(cuid())
-  userId            String
-  locale            String   // en, ha, yo, ig, es, fr, de, zh, ja, ar, etc.
-  isPrimary         Boolean  @default(false)
-  isActive          Boolean  @default(true)
-  detectionSource   String?  // manual, browser, geo, url
-  lastUsedAt        DateTime @default(now())
-  usageCount        Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id              String   @id @default(cuid())
+  userId          String
+  locale          String // en, ha, yo, ig, es, fr, de, zh, ja, ar, etc.
+  isPrimary       Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  detectionSource String? // manual, browser, geo, url
+  lastUsedAt      DateTime @default(now())
+  usageCount      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isPrimary])
   @@index([locale])
@@ -950,19 +957,19 @@ model UserLanguagePreference {
 
 // Track which languages each restaurant supports
 model RestaurantLanguageSupport {
-  id                String   @id @default(cuid())
-  restaurantId      String
-  locale            String   // Supported language code
-  isActive          Boolean  @default(true)
-  isPrimary         Boolean  @default(false) // Primary language of the restaurant
-  hasMenuTranslation Boolean @default(false)
-  hasDescriptionTranslation Boolean @default(false)
-  translationQuality String? // auto, professional, verified
-  lastUpdatedAt     DateTime @default(now())
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                        String   @id @default(cuid())
+  restaurantId              String
+  locale                    String // Supported language code
+  isActive                  Boolean  @default(true)
+  isPrimary                 Boolean  @default(false) // Primary language of the restaurant
+  hasMenuTranslation        Boolean  @default(false)
+  hasDescriptionTranslation Boolean  @default(false)
+  translationQuality        String? // auto, professional, verified
+  lastUpdatedAt             DateTime @default(now())
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 
-  restaurant        Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@unique([restaurantId, locale])
   @@index([locale, isActive])
@@ -971,19 +978,19 @@ model RestaurantLanguageSupport {
 
 // Store localized content for restaurants
 model LocalizedContent {
-  id                String   @id @default(cuid())
-  entityType        String   // restaurant, menu_item, menu_category, promotion
-  entityId          String   // ID of the entity being translated
-  locale            String   // Target language
-  fieldName         String   // name, description, specialRequests, etc.
-  originalText      String   @db.Text
-  translatedText    String   @db.Text
-  translationMethod String   // manual, auto, professional
-  isVerified        Boolean  @default(false)
+  id                String    @id @default(cuid())
+  entityType        String // restaurant, menu_item, menu_category, promotion
+  entityId          String // ID of the entity being translated
+  locale            String // Target language
+  fieldName         String // name, description, specialRequests, etc.
+  originalText      String    @db.Text
+  translatedText    String    @db.Text
+  translationMethod String // manual, auto, professional
+  isVerified        Boolean   @default(false)
   verifiedBy        String?
   verifiedAt        DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@unique([entityType, entityId, locale, fieldName])
   @@index([entityType, entityId])
@@ -993,23 +1000,270 @@ model LocalizedContent {
 
 // Map locations to their default currencies and preferences
 model LocationCurrencyMapping {
-  id                String   @id @default(cuid())
-  country           String   // Country code (NG, US, GB, etc.)
-  state             String?  // State/region within country
-  city              String?  // City name (optional for granular mapping)
-  currency          String   // Currency code (NGN, USD, GBP, etc.)
-  locale            String   // Default locale for this location (en-NG, ha-NG, etc.)
-  timezone          String   // IANA timezone (Africa/Lagos, America/New_York)
-  dateFormat        String   // Preferred date format (DD/MM/YYYY, MM/DD/YYYY)
-  timeFormat        String   // 12 or 24 hour format
-  numberFormat      Json?    // Decimal separator, thousands separator, etc.
-  culturalSettings  Json?    // Meal times, tipping customs, etc.
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id               String   @id @default(cuid())
+  country          String // Country code (NG, US, GB, etc.)
+  state            String? // State/region within country
+  city             String? // City name (optional for granular mapping)
+  currency         String // Currency code (NGN, USD, GBP, etc.)
+  locale           String // Default locale for this location (en-NG, ha-NG, etc.)
+  timezone         String // IANA timezone (Africa/Lagos, America/New_York)
+  dateFormat       String // Preferred date format (DD/MM/YYYY, MM/DD/YYYY)
+  timeFormat       String // 12 or 24 hour format
+  numberFormat     Json? // Decimal separator, thousands separator, etc.
+  culturalSettings Json? // Meal times, tipping customs, etc.
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@unique([country, state, city])
   @@index([country, state])
   @@index([currency])
   @@map("location_currency_mappings")
+}
+
+// Delivery Platform Integration Models
+
+// Delivery platforms (Uber Eats, DoorDash, Grubhub)
+model DeliveryPlatform {
+  id                 String   @id @default(cuid())
+  name               String   @unique // 'uber_eats', 'doordash', 'grubhub'
+  displayName        String // 'Uber Eats', 'DoorDash', 'Grubhub'
+  apiEndpoint        String
+  apiKeyEncrypted    String? // Encrypted storage
+  isActive           Boolean  @default(true)
+  commissionRate     Decimal  @db.Decimal(4, 2) // e.g., 0.15 for 15%
+  configuration      Json? // Platform-specific settings
+  supportedCountries String[] // Countries where platform operates
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  restaurantPlatforms RestaurantDeliveryPlatform[]
+  deliveryOrders      DeliveryOrder[]
+  menuSyncLogs        MenuSyncLog[]
+
+  @@index([name])
+  @@index([isActive])
+  @@map("delivery_platforms")
+}
+
+// Restaurant-platform relationship
+model RestaurantDeliveryPlatform {
+  id                   String    @id @default(cuid())
+  restaurantId         String
+  platformId           String
+  platformRestaurantId String? // Restaurant ID on the platform
+  isConnected          Boolean   @default(false)
+  syncStatus           String    @default("pending") // 'pending', 'syncing', 'synced', 'error'
+  lastSyncAt           DateTime?
+  syncFrequency        String    @default("manual") // 'manual', 'hourly', 'daily', 'realtime'
+  configuration        Json? // Platform-specific restaurant settings
+  menuId               String? // Reference to platform's menu ID
+  isMenuSynced         Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relations
+  restaurant Restaurant       @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  platform   DeliveryPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, platformId])
+  @@index([restaurantId])
+  @@index([platformId])
+  @@index([syncStatus])
+  @@map("restaurant_delivery_platforms")
+}
+
+// Delivery orders
+model DeliveryOrder {
+  id                       String    @id @default(cuid())
+  userId                   String
+  restaurantId             String
+  platformId               String
+  platformOrderId          String? // Order ID on the delivery platform
+  orderNumber              String    @unique // User-friendly order number
+  orderType                String // 'pickup', 'delivery'
+  deliveryAddress          Json? // Full address object
+  specialInstructions      String?   @db.Text
+  contactPhone             String?
+  contactName              String?
+  subtotal                 Decimal   @db.Decimal(10, 2)
+  deliveryFee              Decimal   @default(0) @db.Decimal(8, 2)
+  tip                      Decimal   @default(0) @db.Decimal(8, 2)
+  tax                      Decimal   @default(0) @db.Decimal(8, 2)
+  platformFee              Decimal   @default(0) @db.Decimal(8, 2)
+  discount                 Decimal   @default(0) @db.Decimal(8, 2)
+  totalAmount              Decimal   @db.Decimal(10, 2)
+  currency                 String    @default("NGN")
+  status                   String    @default("pending") // 'pending', 'confirmed', 'preparing', 'ready', 'out_for_delivery', 'delivered', 'cancelled'
+  estimatedPreparationTime Int? // Minutes
+  estimatedDeliveryTime    DateTime?
+  actualDeliveryTime       DateTime?
+  preparationCompletedAt   DateTime?
+  pickupTime               DateTime?
+  deliveryDistance         Decimal?  @db.Decimal(6, 2) // km
+  paymentStatus            String    @default("pending") // 'pending', 'paid', 'failed', 'refunded'
+  paymentMethod            String? // 'card', 'cash', 'mobile_money', 'bank_transfer'
+  items                    Json // Order items with quantities and prices
+  scheduledFor             DateTime? // For scheduled orders
+  cancellationReason       String?
+  cancelledAt              DateTime?
+  cancelledBy              String? // 'customer', 'restaurant', 'platform'
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  // Relations
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  platform   DeliveryPlatform  @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  tracking   DeliveryTracking?
+  feedback   DeliveryFeedback?
+
+  @@index([userId])
+  @@index([restaurantId])
+  @@index([platformId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([orderNumber])
+  @@index([createdAt])
+  @@map("delivery_orders")
+}
+
+// Menu synchronization logs
+model MenuSyncLog {
+  id           String   @id @default(cuid())
+  restaurantId String
+  platformId   String
+  syncType     String // 'full', 'incremental', 'menu_item', 'category'
+  status       String // 'success', 'failed', 'partial'
+  itemsSynced  Int      @default(0)
+  itemsFailed  Int      @default(0)
+  syncData     Json? // Detailed sync information
+  errorMessage String?  @db.Text
+  syncDuration Int? // Milliseconds
+  triggeredBy  String? // 'manual', 'scheduled', 'webhook'
+  createdAt    DateTime @default(now())
+
+  // Relations
+  restaurant Restaurant       @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  platform   DeliveryPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@index([platformId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("menu_sync_logs")
+}
+
+// Delivery tracking information
+model DeliveryTracking {
+  id                 String    @id @default(cuid())
+  orderId            String    @unique
+  driverName         String?
+  driverPhone        String?
+  driverPhoto        String?
+  driverRating       Decimal?  @db.Decimal(3, 2) // e.g., 4.85
+  driverLocation     Json? // { lat, lng, heading, timestamp }
+  vehicleType        String? // 'bike', 'car', 'scooter', 'motorcycle'
+  vehicleNumber      String?
+  estimatedArrival   DateTime?
+  currentStatus      String    @default("waiting") // 'waiting', 'assigned', 'picked_up', 'in_transit', 'nearby', 'arrived'
+  trackingUpdates    Json      @default("[]") // Array of location updates
+  lastLocationUpdate DateTime?
+  lastStatusUpdate   DateTime?
+  pickupLocation     Json? // Restaurant location
+  deliveryLocation   Json? // Customer location
+  distance           Decimal?  @db.Decimal(6, 2) // km
+  distanceRemaining  Decimal?  @db.Decimal(6, 2) // km
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  order DeliveryOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([currentStatus])
+  @@index([lastLocationUpdate])
+  @@map("delivery_tracking")
+}
+
+// Delivery zones and pricing
+model DeliveryZone {
+  id                    String   @id @default(cuid())
+  restaurantId          String
+  zoneName              String
+  deliveryFee           Decimal  @db.Decimal(8, 2)
+  minimumOrder          Decimal  @default(0) @db.Decimal(10, 2)
+  maximumDistanceKm     Decimal  @db.Decimal(5, 2)
+  estimatedTimeMinutes  Int // Estimated delivery time
+  coordinates           Json? // Polygon coordinates for zone boundary (GeoJSON)
+  isActive              Boolean  @default(true)
+  priority              Int      @default(0) // For overlapping zones
+  freeDeliveryThreshold Decimal? @db.Decimal(10, 2) // Free delivery above this amount
+  surchargeWeekend      Decimal  @default(0) @db.Decimal(8, 2)
+  surchargeNight        Decimal  @default(0) @db.Decimal(8, 2) // After hours surcharge
+  nightStartHour        Int      @default(22) // 10 PM
+  nightEndHour          Int      @default(6) // 6 AM
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@index([isActive])
+  @@map("delivery_zones")
+}
+
+// Delivery feedback and ratings
+model DeliveryFeedback {
+  id              String   @id @default(cuid())
+  orderId         String   @unique
+  userId          String
+  restaurantId    String
+  rating          Int // 1-5 stars
+  foodQuality     Int? // 1-5
+  deliverySpeed   Int? // 1-5
+  driverService   Int? // 1-5
+  packaging       Int? // 1-5
+  comment         String?  @db.Text
+  issues          String[] // Array of issue tags
+  wouldOrderAgain Boolean?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  order      DeliveryOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([restaurantId])
+  @@index([rating])
+  @@map("delivery_feedback")
+}
+
+// Delivery driver information (for platform drivers)
+model DeliveryDriver {
+  id               String    @id @default(cuid())
+  platformId       String
+  platformDriverId String // Driver ID on the platform
+  name             String
+  phone            String
+  photo            String?
+  rating           Decimal   @db.Decimal(3, 2)
+  totalDeliveries  Int       @default(0)
+  vehicleType      String
+  vehicleNumber    String?
+  isActive         Boolean   @default(true)
+  lastSeen         DateTime?
+  currentLocation  Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([platformId, platformDriverId])
+  @@index([platformId])
+  @@index([isActive])
+  @@map("delivery_drivers")
 }

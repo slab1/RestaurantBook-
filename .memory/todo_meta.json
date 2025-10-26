@@ -26,8 +26,8 @@
         "id": "4",
         "content": "Delivery Platform Integration",
         "details": "Integrate with major delivery platforms (Uber Eats, DoorDash, Grubhub) to provide seamless ordering experience. Include real-time delivery tracking, menu synchronization, and order management",
-        "status": "pending",
-        "priority": "medium"
+        "status": "completed",
+        "priority": "high"
       },
       "5": {
         "id": "5",
