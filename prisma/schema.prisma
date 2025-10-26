@@ -148,6 +148,9 @@ model User {
   userLanguagePreferences UserLanguagePreference[]
   deliveryOrders          DeliveryOrder[]
   deliveryFeedback        DeliveryFeedback[]
+  arInteractions          ARUserInteraction[]
+  arShares                ARSocialShare[]
+  arSessions              ARSession[]
 
   @@map("users")
 }
@@ -213,6 +216,8 @@ model Restaurant {
   deliveryZones             DeliveryZone[]
   deliveryFeedback          DeliveryFeedback[]
   menuSyncLogs              MenuSyncLog[]
+  arContent                 ARRestaurantContent[]
+  virtualTourScenes         VirtualTourScene[]
 
   @@index([latitude, longitude])
   @@index([cuisine])
@@ -475,8 +480,9 @@ model MenuItem {
   updatedAt       DateTime @updatedAt
 
   // Relations
-  categoryId String
-  category   MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId          String
+  category            MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  arEnhancedMenuItems ARMenuItem[]
 
   @@map("menu_items")
 }
@@ -810,6 +816,37 @@ enum InteractionType {
   REFERRAL_SENT
   REVIEW_SUBMITTED
   APP_SHARE
+  AR_CONTENT_VIEWED
+  AR_MENU_ITEM_INTERACTED
+  VIRTUAL_TOUR_STARTED
+  VIRTUAL_TOUR_COMPLETED
+  AR_SOCIAL_SHARE
+}
+
+enum ARContentType {
+  THREE_D_MODEL
+  AUGMENTED_OVERLAY
+  INTERACTIVE_HOLOGRAM
+  VIRTUAL_TOUR
+  AR_MENU_VISUALIZATION
+  NUTRITIONAL_OVERLAY
+  VIRTUAL_SEATING
+  AR_PROMOTION
+}
+
+enum ARInteractionType {
+  VIEW
+  TAP
+  GESTURE
+  ROTATE
+  SCALE
+  PLACE
+  SHARE
+  FAVORITE
+  INTERACT_WITH_3D
+  WALKTHROUGH
+  SCREENSHOT
+  VIDEO_RECORD
 }
 
 // ML Recommendation System Models
@@ -1266,4 +1303,205 @@ model DeliveryDriver {
   @@index([platformId])
   @@index([isActive])
   @@map("delivery_drivers")
+}
+
+// Augmented Reality (AR) Models
+
+// AR content for restaurants (3D models, overlays, virtual elements)
+model ARRestaurantContent {
+  id                String        @id @default(cuid())
+  restaurantId      String
+  contentType       ARContentType
+  title             String
+  description       String?
+  arModelUrl        String? // URL to 3D model file (GLB, GLTF, USDZ)
+  previewImage      String? // Preview image for AR content
+  positionData      Json? // 3D positioning data { x, y, z, rotation }
+  scale             Float?        @default(1.0)
+  isActive          Boolean       @default(true)
+  isPremium         Boolean       @default(false) // Requires subscription/payment
+  interactionPoints Json? // Interactive hotspots data
+  ambientSound      String? // URL to ambient sound file
+  lightingData      Json? // Lighting configuration
+  metadata          Json? // Additional AR-specific metadata
+  targetDevices     String[] // arkit, arcore, webxr
+  version           String?       @default("1.0")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  restaurant   Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuItems    ARMenuItem[]
+  interactions ARUserInteraction[] @relation("ARContentInteraction")
+  socialShares ARSocialShare[]
+
+  @@index([restaurantId])
+  @@index([contentType])
+  @@index([isActive])
+  @@index([isPremium])
+  @@map("ar_restaurant_content")
+}
+
+// AR-enhanced menu items
+model ARMenuItem {
+  id                   String   @id @default(cuid())
+  arContentId          String
+  menuItemId           String
+  showInAR             Boolean  @default(false)
+  arVisualizationUrl   String? // 3D model of the food item
+  nutritionalOverlay   Json? // AR nutritional information display
+  portionSizeIndicator Boolean  @default(false) // AR portion size comparison
+  ingredientHighlight  Json? // Highlight specific ingredients in AR
+  allergenWarnings     Json? // AR allergen warnings
+  preparationTimeAR    Json? // AR visualization of preparation steps
+  interactionData      Json? // Tap to see ingredients, allergens, etc.
+  customArInstructions String?  @db.Text // Instructions for AR interaction
+  arPromotions         Json? // AR-specific promotional content
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relations
+  arContent    ARRestaurantContent @relation(fields: [arContentId], references: [id], onDelete: Cascade)
+  menuItem     MenuItem            @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  interactions ARUserInteraction[] @relation("ARMenuItemInteraction")
+
+  @@unique([arContentId, menuItemId])
+  @@index([showInAR])
+  @@index([arContentId])
+  @@index([menuItemId])
+  @@map("ar_menu_items")
+}
+
+// Virtual tour scenes for restaurants
+model VirtualTourScene {
+  id                  String   @id @default(cuid())
+  restaurantId        String
+  sceneName           String
+  sceneOrder          Int      @default(0) // Order in the tour sequence
+  description         String?
+  panoramicImageUrl   String? // 360-degree panoramic image
+  videoUrl            String? // Virtual walkthrough video
+  arModelUrl          String? // 3D scene model
+  hotspots            Json? // Interactive hotspots in the scene
+  navigationData      Json? // Navigation between scenes
+  lightingSetup       Json? // Virtual lighting for the scene
+  ambientAudio        String? // Background audio for the scene
+  interactiveElements Json? // Clickable/droppable objects in scene
+  accessibilityInfo   Json? // Accessibility features for the scene
+  vrCompatible        Boolean  @default(false)
+  mobileOptimized     Boolean  @default(true)
+  webCompatible       Boolean  @default(true)
+  isActive            Boolean  @default(true)
+  durationEstimate    Int? // Estimated time in seconds
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  restaurant   Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  interactions ARUserInteraction[] @relation("ARSceneInteraction")
+
+  @@index([restaurantId])
+  @@index([sceneOrder])
+  @@index([isActive])
+  @@index([vrCompatible])
+  @@map("virtual_tour_scenes")
+}
+
+// AR user interactions tracking
+model ARUserInteraction {
+  id              String            @id @default(cuid())
+  userId          String
+  interactionType ARInteractionType
+  targetType      String // 'ar_content', 'menu_item', 'virtual_scene'
+  targetId        String // ID of the target (arContentId, menuItemId, sceneId)
+  sessionId       String? // AR session identifier
+  deviceInfo      Json? // Device information (model, os, browser)
+  arCapabilities  Json? // Device AR capabilities
+  interactionData Json? // Detailed interaction data
+  position        Json? // User's position during interaction
+  duration        Int? // Interaction duration in milliseconds
+  success         Boolean? // Whether interaction was successful
+  errorMessage    String?
+  locationData    Json? // GPS location if available
+  timestamp       DateTime          @default(now())
+  createdAt       DateTime          @default(now())
+
+  // Relations
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  arContent   ARRestaurantContent? @relation("ARContentInteraction", fields: [arContentId], references: [id])
+  arContentId String?
+  menuItem    ARMenuItem?          @relation("ARMenuItemInteraction", fields: [menuItemId], references: [id])
+  menuItemId  String?
+  scene       VirtualTourScene?    @relation("ARSceneInteraction", fields: [sceneId], references: [id])
+  sceneId     String?
+
+  @@index([userId])
+  @@index([interactionType])
+  @@index([arContentId])
+  @@index([menuItemId])
+  @@index([sceneId])
+  @@index([targetType, targetId])
+  @@index([sessionId])
+  @@index([timestamp])
+  @@map("ar_user_interactions")
+}
+
+// AR social shares
+model ARSocialShare {
+  id          String    @id @default(cuid())
+  userId      String
+  arContentId String
+  platform    String // 'facebook', 'instagram', 'twitter', 'whatsapp', 'tiktok'
+  shareType   String // 'screenshot', 'video', 'ar_experience', 'virtual_tour'
+  sharedUrl   String? // URL to the shared content
+  caption     String?
+  hashtags    String[]
+  mediaFiles  String[] // URLs to shared media files
+  arSessionId String? // Reference to AR session
+  views       Int       @default(0) // View count of shared content
+  likes       Int       @default(0) // Likes on shared content
+  shares      Int       @default(0) // Re-shares
+  isPublic    Boolean   @default(true)
+  expiresAt   DateTime?
+  metadata    Json? // Additional share metadata
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  arContent ARRestaurantContent @relation(fields: [arContentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([arContentId])
+  @@index([platform])
+  @@index([shareType])
+  @@index([createdAt])
+  @@map("ar_social_shares")
+}
+
+// AR session tracking for continuity across interactions
+model ARSession {
+  id                String    @id @default(cuid())
+  userId            String
+  sessionToken      String    @unique
+  deviceId          String?
+  startedAt         DateTime  @default(now())
+  lastActivityAt    DateTime  @default(now())
+  endedAt           DateTime?
+  totalDuration     Int? // Total session duration in seconds
+  interactionsCount Int       @default(0)
+  contentViews      Json? // Count of each content type viewed
+  sessionData       Json? // Session-specific data
+  deviceInfo        Json? // Device information
+  locationData      Json? // Location during session
+  isActive          Boolean   @default(true)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([startedAt])
+  @@index([isActive])
+  @@map("ar_sessions")
 }
