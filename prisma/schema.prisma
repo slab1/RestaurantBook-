@@ -64,6 +64,50 @@ enum LoyaltyTransactionType {
   REDEEMED
   EXPIRED
   ADJUSTED
+  TRANSFERRED
+  BONUS
+}
+
+enum LoyaltyTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum AchievementType {
+  BADGE
+  STREAK
+  CHALLENGE
+  MILESTONE
+  SPECIAL
+}
+
+enum AchievementCategory {
+  BOOKING_STREAK
+  SPENDING_MILESTONE
+  REFERRALS
+  REVIEWS
+  SOCIAL_SHARING
+  BIRTHDAY_BONUS
+  ANNIVERSARY_REWARD
+  FESTIVAL_BONUS
+  LOYALTY_DAYS
+  PREMIUM_CUSTOMER
+}
+
+enum EventType {
+  BIRTHDAY
+  ANNIVERSARY
+  BUSINESS_MEETING
+  DATE_NIGHT
+  CELEBRATION
+  CASUAL_DINING
+  NEW_YEAR
+  INDEPENDENCE_DAY
+  CHRISTMAS
+  EID
+  FESTIVAL
 }
 
 enum PreferenceType {
@@ -112,16 +156,16 @@ model User {
   city              String?
   state             String?
   zipCode           String?
-  country           String?   @default("US")
-  stripeCustomerId  String?
-  loyaltyPoints     Int       @default(0)
-  totalSpent        Float     @default(0)
-  preferredLanguage String    @default("en")
-  timezone          String    @default("UTC")
-  lastLoginAt       DateTime?
-  isActive          Boolean   @default(true)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  country                String?   @default("NG") // Nigerian market focus
+  stripeCustomerId       String?
+  loyaltyPoints          Int       @default(0) // Legacy field, migrate to UserLoyaltyProfile
+  totalSpent             Float     @default(0)
+  preferredLanguage      String    @default("en") // Support for English, Hausa, Yoruba, Igbo
+  timezone               String    @default("Africa/Lagos") // Nigerian timezone
+  lastLoginAt            DateTime?
+  isActive               Boolean   @default(true)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   // Relations
   bookings                Booking[]
@@ -129,7 +173,6 @@ model User {
   restaurants             Restaurant[]
   payments                Payment[]
   waitlistEntries         WaitlistEntry[]
-  loyaltyTransactions     LoyaltyTransaction[]
   userPreferences         UserPreference[]
   notifications           Notification[]
   giftCards               GiftCard[]
@@ -151,6 +194,19 @@ model User {
   arInteractions          ARUserInteraction[]
   arShares                ARSocialShare[]
   arSessions              ARSession[]
+  
+  // ============ LOYALTY SYSTEM RELATIONS ============
+  loyaltyProfile          UserLoyaltyProfile?
+  userInteractions        UserInteraction[]
+  userTestAssignments     UserTestAssignment[]
+  userLanguagePreferences UserLanguagePreference[]
+  deliveryOrders          DeliveryOrder[]
+  deliveryFeedback        DeliveryFeedback[]
+  arInteractions          ARUserInteraction[]
+  arShares                ARSocialShare[]
+  arSessions              ARSession[]
+  userAchievements        UserAchievement[]
+  partnerTransactions     PartnerTransaction[]
 
   @@map("users")
 }
@@ -164,7 +220,7 @@ model Restaurant {
   city               String
   state              String
   zipCode            String
-  country            String   @default("US")
+  country            String   @default("NG") // Nigerian market focus
   phone              String
   email              String
   website            String?
@@ -186,8 +242,15 @@ model Restaurant {
   cancellationPolicy String?
   depositRequired    Boolean  @default(false)
   depositAmount      Float?
-  loyaltyProgram     Boolean  @default(false)
-  loyaltyRate        Float    @default(0.01) // points per dollar
+  loyaltyProgram       Boolean  @default(false)
+  loyaltyRate          Float    @default(0.01) // points per Nigerian Naira
+  loyaltyRateNaira     Float    @default(0.01) // points per Naira (NGN)
+  loyaltyMultiplier    Float    @default(1.0) // bonus multiplier for special offers
+  cashbackRate         Float?   // cashback rate as percentage
+  birthdayBonus        Int      @default(100) // birthday bonus points
+  referralBonus        Int      @default(50) // referral bonus points
+  tieredRewards        Boolean  @default(true) // supports tier-based rewards
+  partnerNetwork       Boolean  @default(false) // participates in partner merchant network
   averageSeatingTime Int      @default(120) // minutes
   isActive           Boolean  @default(true)
   isVerified         Boolean  @default(false)
@@ -407,20 +470,359 @@ model UserPreference {
   @@map("user_preferences")
 }
 
-// Loyalty system
-model LoyaltyTransaction {
-  id          String                 @id @default(cuid())
-  type        LoyaltyTransactionType
-  points      Int
-  description String
-  expiresAt   DateTime?
-  createdAt   DateTime               @default(now())
+// ============ COMPREHENSIVE LOYALTY SYSTEM ============
+// User Loyalty Profile with Nigerian market focus
+model UserLoyaltyProfile {
+  id                    String      @id @default(cuid())
+  userId                String      @unique
+  currentTier           LoyaltyTier @default(BRONZE)
+  totalPointsEarned     Int         @default(0)
+  totalPointsRedeemed   Int         @default(0)
+  lifetimePoints        Int         @default(0)
+  currentPointsBalance  Int         @default(0)
+  pointsExpiringSoon    Int         @default(0) // Points expiring in next 30 days
+  tierChangeDate        DateTime    @default(now())
+  nextTierProgress      Float       @default(0) // Progress to next tier (0-100)
+  isActive              Boolean     @default(true)
+  joinedAt              DateTime    @default(now())
+  lastActivityAt        DateTime?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
 
   // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions            LoyaltyTransaction[]
+  redemptions             LoyaltyRedemption[]
+  achievements            UserAchievement[]
+  streaks                 UserStreak[]
+  events                  LoyaltyEvent[]
+  partnerRedemptions      PartnerRewardRedemption[]
 
+  @@map("user_loyalty_profiles")
+}
+
+// Enhanced Loyalty Transaction System
+model LoyaltyTransaction {
+  id              String                 @id @default(cuid())
+  userId          String
+  userProfileId   String
+  type            LoyaltyTransactionType
+  points          Int
+  description     String
+  source          String? // booking, referral, review, etc.
+  referenceId     String? // ID of related entity (booking, payment, etc.)
+  referenceType   String? // Type of reference
+  expiresAt       DateTime?
+  isReversed      Boolean                @default(false)
+  reversedAt      DateTime?
+  reversalReason  String?
+  location        String? // City/state for Nigerian tracking
+  merchantId      String? // Partner merchant ID
+  createdAt       DateTime               @default(now())
+
+  // Relations
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userProfile     UserLoyaltyProfile     @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([expiresAt])
   @@map("loyalty_transactions")
+}
+
+// Loyalty Tier Definitions with Nigerian benefits
+model LoyaltyTier {
+  id                    String     @id @default(cuid())
+  name                  String     @unique
+  tier                  LoyaltyTier
+  minPointsRequired     Int        @default(0)
+  maxPointsRequired     Int? // NULL for highest tier
+  pointsMultiplier      Float      @default(1.0) // Earn rate multiplier
+  benefits              Json? // Benefits and perks
+  tierColor             String? // Hex color code for UI
+  tierIcon              String? // Icon name/path
+  tierPrivileges        Json? // Special privileges
+  birthdayBonusPoints   Int        @default(0)
+  anniversaryBonus      Int        @default(0)
+  referralBonus         Int        @default(0)
+  prioritySupport       Boolean    @default(false)
+  exclusiveEvents       Boolean    @default(false)
+  isActive              Boolean    @default(true)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  // Relations
+  userProfiles          UserLoyaltyProfile[]
+
+  @@index([tier])
+  @@index([minPointsRequired])
+  @@map("loyalty_tiers")
+}
+
+// Achievements System
+model Achievement {
+  id                    String              @id @default(cuid())
+  name                  String
+  description           String
+  type                  AchievementType
+  category              AchievementCategory
+  icon                  String? // Icon identifier
+  badgeImage            String? // Badge image URL
+  pointsReward          Int                 @default(0)
+  tierRequirement       LoyaltyTier?
+  minStreakDays         Int?
+  maxStreakDays         Int?
+  minSpentAmount        Decimal?            @db.Decimal(12, 2)
+  maxSpentAmount        Decimal?            @db.Decimal(12, 2)
+  minBookingsCount      Int?
+  minReferralsCount     Int?
+  minReviewsCount       Int?
+  festivalExclusive     Boolean             @default(false)
+  locationSpecific      String? // City/state in Nigeria
+  isActive              Boolean             @default(true)
+  startDate             DateTime?
+  endDate               DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  // Relations
+  userAchievements      UserAchievement[]
+
+  @@index([type])
+  @@index([category])
+  @@index([isActive])
+  @@map("achievements")
+}
+
+// User Achievement Tracking
+model UserAchievement {
+  id              String      @id @default(cuid())
+  userId          String
+  userProfileId   String
+  achievementId   String
+  earnedAt        DateTime    @default(now())
+  progress        Float       @default(0) // Progress percentage
+  isCompleted     Boolean     @default(false)
+  completedAt     DateTime?
+  pointsAwarded   Int         @default(0)
+  metadata        Json? // Additional achievement data
+  location        String? // Where achievement was earned
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userProfile     UserLoyaltyProfile  @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  achievement     Achievement         @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userProfileId])
+  @@index([isCompleted])
+  @@index([earnedAt])
+  @@map("user_achievements")
+}
+
+// User Activity Streaks
+model UserStreak {
+  id              String            @id @default(cuid())
+  userId          String
+  userProfileId   String
+  streakType      String // 'booking', 'review', 'visit', 'review'
+  currentStreak   Int               @default(0)
+  longestStreak   Int               @default(0)
+  lastActivityAt  DateTime?
+  streakStartDate DateTime?
+  streakEndDate   DateTime?
+  isActive        Boolean           @default(true)
+  milestones      Json? // Milestone achievements
+  location        String? // City/state
+  metadata        Json? // Additional streak data
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userProfile     UserLoyaltyProfile  @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, streakType])
+  @@index([userProfileId])
+  @@index([currentStreak])
+  @@map("user_streaks")
+}
+
+// Loyalty Events (Birthdays, Special Occasions)
+model LoyaltyEvent {
+  id                    String      @id @default(cuid())
+  userId                String
+  userProfileId         String
+  eventType             String // 'birthday', 'anniversary', 'festival', 'special_occasion'
+  eventDate             DateTime
+  description           String?
+  pointsAwarded         Int         @default(0)
+  bonusMultiplier       Float       @default(1.0)
+  isClaimed             Boolean     @default(false)
+  claimedAt             DateTime?
+  expiryDate            DateTime?
+  eventMetadata         Json? // Additional event data
+  location              String? // City/state
+  celebrationYear       Int? // Year of celebration
+  isRecurring           Boolean     @default(false)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  // Relations
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userProfile     UserLoyaltyProfile  @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userProfileId])
+  @@index([eventDate])
+  @@index([isClaimed])
+  @@map("loyalty_events")
+}
+
+// Partner Merchants for Cross-Promotion
+model PartnerMerchant {
+  id                    String   @id @default(cuid())
+  name                  String
+  businessType          String // 'restaurant', 'retail', 'entertainment', 'services'
+  description           String?
+  logo                  String?
+  website               String?
+  contactEmail          String?
+  contactPhone          String?
+  address               String?
+  city                  String?
+  state                 String?
+  country               String   @default("NG")
+  location              String? // City, State format
+  partnershipType       String? // 'points_partner', 'reward_partner', 'promotional'
+  pointsConversionRate  Decimal? @db.Decimal(5, 2) // Our points to partner currency
+  partnerCurrency       String? // 'NGN', 'USD', etc.
+  commissionRate        Decimal? @db.Decimal(4, 2)
+  isActive              Boolean  @default(true)
+  verificationStatus    String   @default("pending") // 'pending', 'verified', 'suspended'
+  verificationDate      DateTime?
+  contractStart         DateTime?
+  contractEnd           DateTime?
+  terms                 String?  @db.Text
+  specialOffers         Json? // Partner-specific offers
+  operatingHours        Json?
+  supportedServices     String[] // 'delivery', 'pickup', 'dine_in', etc.
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  partnerRewards        PartnerReward[]
+  rewardRedemptions     PartnerRewardRedemption[]
+
+  @@index([businessType])
+  @@index([city, state])
+  @@index([isActive])
+  @@map("partner_merchants")
+}
+
+// Partner-Specific Rewards
+model PartnerReward {
+  id                    String   @id @default(cuid())
+  partnerMerchantId     String
+  name                  String
+  description           String?
+  pointsCost            Int
+  partnerCurrency       String? // Currency if different from points
+  partnerCurrencyCost   Decimal? @db.Decimal(10, 2)
+  rewardType            String // 'discount', 'free_item', 'cashback', 'service'
+  rewardValue           Decimal? @db.Decimal(10, 2)
+  minPurchaseAmount     Decimal? @db.Decimal(10, 2)
+  maxDiscount           Decimal? @db.Decimal(10, 2)
+  validFrom             DateTime
+  validUntil            DateTime
+  usageLimit            Int?
+  currentUsageCount     Int      @default(0)
+  termsAndConditions    String?  @db.Text
+  imageUrl              String?
+  isActive              Boolean  @default(true)
+  priority              Int      @default(0) // Display priority
+  categories            String[] // Applicable categories
+  locationSpecific      String? // City/state filter
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  partnerMerchant       PartnerMerchant          @relation(fields: [partnerMerchantId], references: [id], onDelete: Cascade)
+  redemptions           PartnerRewardRedemption[]
+
+  @@index([partnerMerchantId])
+  @@index([validFrom, validUntil])
+  @@index([isActive])
+  @@map("partner_rewards")
+}
+
+// Partner Reward Redemptions
+model PartnerRewardRedemption {
+  id                    String    @id @default(cuid())
+  userId                String
+  userProfileId         String
+  partnerMerchantId     String
+  partnerRewardId       String
+  pointsUsed            Int
+  partnerCurrencyUsed   Decimal?  @db.Decimal(10, 2)
+  redemptionCode        String?   @unique
+  status                String    @default("pending") // 'pending', 'completed', 'expired', 'cancelled'
+  redeemedAt            DateTime  @default(now())
+  expiresAt             DateTime?
+  completedAt           DateTime?
+  partnerTransactionId  String? // External transaction ID
+  location              String? // Redemption location
+  metadata              Json? // Additional redemption data
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relations
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userProfile     UserLoyaltyProfile  @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  partnerMerchant PartnerMerchant     @relation(fields: [partnerMerchantId], references: [id], onDelete: Cascade)
+  partnerReward   PartnerReward       @relation(fields: [partnerRewardId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userProfileId])
+  @@index([partnerMerchantId])
+  @@index([status])
+  @@index([redeemedAt])
+  @@map("partner_reward_redemptions")
+}
+
+// Loyalty Redemptions
+model LoyaltyRedemption {
+  id                    String    @id @default(cuid())
+  userId                String
+  userProfileId         String
+  pointsRedeemed        Int
+  description           String
+  redemptionType        String // 'discount', 'free_item', 'cashback', 'upgrade'
+  redemptionValue       Decimal? @db.Decimal(10, 2)
+  referenceId           String? // Related entity ID (booking, payment, etc.)
+  referenceType         String? // Type of reference
+  status                String    @default("pending") // 'pending', 'completed', 'cancelled', 'expired'
+  redeemedAt            DateTime  @default(now())
+  expiresAt             DateTime?
+  completedAt           DateTime?
+  cancellationReason    String?
+  location              String? // City/state
+  metadata              Json? // Additional data
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relations
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userProfile     UserLoyaltyProfile  @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userProfileId])
+  @@index([status])
+  @@index([redeemedAt])
+  @@map("loyalty_redemptions")
 }
 
 // Gift cards

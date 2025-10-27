@@ -39,6 +39,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
+import LoyaltyAnalyticsWidget from './LoyaltyAnalyticsWidget';
 
 // Register Chart.js components
 ChartJS.register(
@@ -582,6 +583,17 @@ export function EnhancedAnalyticsDashboard({ restaurantId, className }: Enhanced
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Loyalty Analytics Widget */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <LoyaltyAnalyticsWidget 
+                restaurantId={restaurantId}
+                showDetails={true}
+                className="w-full"
+              />
+            </div>
           </div>
         </TabsContent>
       </Tabs>
