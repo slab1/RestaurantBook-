@@ -12,7 +12,7 @@
         "id": "2",
         "content": "Create restaurant menu pages",
         "details": "Build menu pages at /restaurants/[id]/menu with:\n- Categorized menu items (appetizers, mains, desserts, drinks)\n- Item images, descriptions, prices, dietary info\n- Search and filter functionality\n- Add to favorites feature\n- Allergen information\n- Special offers and daily specials",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "3": {
