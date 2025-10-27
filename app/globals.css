@@ -80,13 +80,10 @@
   @media (max-width: 767px) {
     body {
       overscroll-behavior-y: contain;
-      position: fixed;
-      width: 100%;
-      height: 100%;
     }
 
     #__next {
-      height: 100vh;
+      min-height: 100vh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
@@ -107,6 +104,25 @@
 
   .safe-area-right {
     padding-right: env(safe-area-inset-right);
+  }
+
+  /* Mobile navigation specific styles */
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Ensure touch targets are properly sized and clickable */
+  @media (max-width: 767px) {
+    .touch-manipulation {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    /* Prevent layout shift during animations */
+    .mobile-nav-link {
+      will-change: transform;
+    }
   }
 
   /* Prevent zoom on input focus on iOS */

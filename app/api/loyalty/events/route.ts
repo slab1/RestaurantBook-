@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@/lib/prisma'
 import { AuthService } from '@/lib/auth'
 import { validateSchema, CuidSchema, PaginationSchema } from '@/lib/validation'
 import { logger } from '@/lib/logger'

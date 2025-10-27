@@ -76,12 +76,12 @@ async function getBookingsAnalytics(startDate: Date, endDate: Date, filter: any)
   });
 
   const total = bookings.length;
-  const completed = bookings.filter(b => b.status === 'COMPLETED').length;
-  const cancelled = bookings.filter(b => b.status === 'CANCELLED').length;
-  const pending = bookings.filter(b => b.status === 'PENDING').length;
+  const completed = bookings.filter((b: any) => b.status === 'COMPLETED').length;
+  const cancelled = bookings.filter((b: any) => b.status === 'CANCELLED').length;
+  const pending = bookings.filter((b: any) => b.status === 'PENDING').length;
 
   const avgPartySize = bookings.length > 0 
-    ? bookings.reduce((sum, b) => sum + b.partySize, 0) / bookings.length 
+    ? bookings.reduce((sum: number, b: any) => sum + b.partySize, 0) / bookings.length 
     : 0;
 
   const completionRate = total > 0 ? completed / total : 0;
@@ -97,8 +97,8 @@ async function getBookingsAnalytics(startDate: Date, endDate: Date, filter: any)
       COMPLETED: completed,
       CANCELLED: cancelled,
       PENDING: pending,
-      CONFIRMED: bookings.filter(b => b.status === 'CONFIRMED').length,
-      NO_SHOW: bookings.filter(b => b.status === 'NO_SHOW').length,
+      CONFIRMED: bookings.filter((b: any) => b.status === 'CONFIRMED').length,
+      NO_SHOW: bookings.filter((b: any) => b.status === 'NO_SHOW').length,
     },
   };
 }
@@ -116,7 +116,7 @@ async function getRevenueAnalytics(startDate: Date, endDate: Date, filter: any) 
     },
   });
 
-  const total = bookings.reduce((sum, b) => sum + Number(b.totalAmount || 0), 0);
+  const total = bookings.reduce((sum: number, b: any) => sum + Number(b.totalAmount || 0), 0);
   const avgOrderValue = bookings.length > 0 ? total / bookings.length : 0;
 
   // Generate daily breakdown
@@ -128,7 +128,7 @@ async function getRevenueAnalytics(startDate: Date, endDate: Date, filter: any) 
     dailyBreakdown[date] = 0;
   }
 
-  bookings.forEach(booking => {
+  bookings.forEach((booking: any) => {
     const date = format(booking.createdAt, 'yyyy-MM-dd');
     if (dailyBreakdown[date] !== undefined) {
       dailyBreakdown[date] += Number(booking.totalAmount || 0);
@@ -164,15 +164,15 @@ async function getCustomersAnalytics(startDate: Date, endDate: Date, filter: any
   const newCustomers = await prisma.booking.findMany({
     where: {
       createdAt: { gte: startDate, lte: endDate },
-      userId: { in: bookings.map(b => b.userId) },
+      userId: { in: bookings.map((b: any) => b.userId) },
     },
     orderBy: { createdAt: 'asc' },
   });
 
   const newCustomersCount = new Set(
-    newCustomers.filter(booking => 
-      booking.createdAt.getTime() === newCustomers.find(b => b.userId === booking.userId)?.createdAt.getTime()
-    ).map(b => b.userId)
+    newCustomers.filter((booking: any) => 
+      booking.createdAt.getTime() === newCustomers.find((b: any) => b.userId === booking.userId)?.createdAt.getTime()
+    ).map((b: any) => b.userId)
   ).size;
 
   const returning = total - newCustomersCount;
@@ -197,16 +197,16 @@ async function getSocialSharingAnalytics(startDate: Date, endDate: Date, filter:
   
   // Platform breakdown
   const platformBreakdown: Record<string, number> = {};
-  socialShares.forEach(share => {
+  socialShares.forEach((share: any) => {
     platformBreakdown[share.platform] = (platformBreakdown[share.platform] || 0) + 1;
   });
 
   // Calculate share conversion rate (shares that led to bookings)
-  const sharesWithBookings = socialShares.filter(share => share.bookingId).length;
+  const sharesWithBookings = socialShares.filter((share: any) => share.bookingId).length;
   const shareConversionRate = totalShares > 0 ? sharesWithBookings / totalShares : 0;
 
   // Average shares per user
-  const uniqueUsers = new Set(socialShares.map(share => share.userId)).size;
+  const uniqueUsers = new Set(socialShares.map((share: any) => share.userId)).size;
   const sharesPerUser = uniqueUsers > 0 ? totalShares / uniqueUsers : 0;
 
   return {

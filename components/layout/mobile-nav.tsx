@@ -18,8 +18,12 @@ export function MobileBottomNav() {
 
   // Hide on desktop
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:hidden">
-      <div className="grid grid-cols-5 h-16">
+    <nav 
+      className="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:hidden safe-area-bottom shadow-lg"
+      role="navigation"
+      aria-label="Mobile Navigation"
+    >
+      <div className="grid grid-cols-5 h-16 pb-safe-bottom">
         {navItems.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -27,14 +31,43 @@ export function MobileBottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 transition-colors',
+                'flex flex-col items-center justify-center gap-1 transition-colors min-h-[64px] touch-manipulation mobile-nav-link relative',
                 isActive
                   ? 'text-blue-600 dark:text-blue-400'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
               )}
+              style={{ 
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation',
+                minHeight: '64px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
+              onClick={(e) => {
+                // Enhanced touch feedback
+                const target = e.currentTarget
+                target.style.transform = 'scale(0.95)'
+                setTimeout(() => {
+                  target.style.transform = ''
+                }, 150)
+              }}
             >
-              <item.icon className={cn('h-5 w-5', isActive && 'text-blue-600 dark:text-blue-400')} />
-              <span className="text-xs font-medium">{item.label}</span>
+              <item.icon 
+                className={cn(
+                  'h-5 w-5 transition-colors', 
+                  isActive && 'text-blue-600 dark:text-blue-400'
+                )} 
+              />
+              <span className="text-xs font-medium leading-none">
+                {item.label}
+              </span>
+              {/* Active indicator */}
+              {isActive && (
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full" />
+              )}
             </Link>
           )
         })}

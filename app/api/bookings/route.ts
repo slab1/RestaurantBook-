@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient, BookingStatus, UserRole } from '@prisma/client'
+import { PrismaClient, BookingStatus, UserRole } from '@/lib/prisma'
 import { AuthService, RoleService } from '@/lib/auth'
 import { validateSchema, BookingCreateSchema, BookingSearchSchema } from '@/lib/validation'
 import { logger, loggers } from '@/lib/logger'

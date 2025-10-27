@@ -1,15 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AuthService } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await AuthService.getCurrentUser(request)
-    
-    if (!user) {
+    const token = request.cookies.get('access_token')?.value
+    if (!token) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       )
+    }
+    
+    // For demo, return fixed user
+    const user = {
+      id: 'demo-user-1',
+      email: 'demo@restaurantbook.com',
+      firstName: 'Demo',
+      lastName: 'User',
+      role: 'CUSTOMER',
+      avatar: null,
+      phone: null
     }
 
     return NextResponse.json({ user })

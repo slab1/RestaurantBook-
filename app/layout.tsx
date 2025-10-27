@@ -137,7 +137,9 @@ export default function RootLayout({
                 </main>
 
                 {/* Mobile Bottom Navigation */}
-                <MobileBottomNav />
+                <div className="md:hidden">
+                  <MobileBottomNav />
+                </div>
 
                 {/* PWA Install Prompt */}
                 <PWAInstallPrompt />

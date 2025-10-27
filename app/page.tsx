@@ -1,11 +1,97 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { SearchBar } from '@/components/restaurant/search-bar'
 import { FeaturedRestaurants } from '@/components/restaurant/featured-restaurants'
-import { Calendar, MapPin, Star, Users } from 'lucide-react'
+import { Calendar, MapPin, Star, Users, QrCode, Bell, Camera, X } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
+import { useAuth } from '@/components/providers/auth-provider'
+import { QrScannerComponent } from '@/components/qr-scanner'
 
 export default function HomePage() {
+  const { user } = useAuth()
+  const router = useRouter()
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const [showQRScanner, setShowQRScanner] = useState(false)
+  const [lastScannedData, setLastScannedData] = useState<string | null>(null)
+
+  const handleEnableNotifications = async () => {
+    if ('Notification' in window) {
+      const permission = await Notification.requestPermission()
+      if (permission === 'granted') {
+        setNotificationsEnabled(true)
+        toast({
+          title: 'Notifications enabled!',
+          description: 'You\'ll now receive booking updates and special offers.',
+        })
+        
+        // Send test notification
+        new Notification('Welcome to RestaurantBook!', {
+          body: 'Notifications are now active.',
+          icon: '/icons/icon-192x192.png'
+        })
+      } else {
+        toast({
+          title: 'Notifications blocked',
+          description: 'Please enable notifications in your browser settings.',
+          variant: 'destructive',
+        })
+      }
+    } else {
+      toast({
+        title: 'Notifications not supported',
+        description: 'Your browser doesn\'t support notifications.',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleQRScan = () => {
+    if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
+      setShowQRScanner(true)
+      setLastScannedData(null)
+    } else {
+      toast({
+        title: 'Camera not available',
+        description: 'Camera access is required for QR scanning.',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleQRScanResult = (data: string) => {
+    setLastScannedData(data)
+    
+    // Check if it's a restaurant URL
+    try {
+      const url = new URL(data)
+      if (url.hostname.includes('restaurant') || url.pathname.includes('/restaurant/')) {
+        toast({
+          title: 'Restaurant QR Code!',
+          description: 'Redirecting to restaurant page...',
+        })
+        // Navigate to the restaurant page
+        router.push(url.pathname)
+      } else {
+        toast({
+          title: 'QR Code Scanned',
+          description: 'Content: ' + data.substring(0, 50) + (data.length > 50 ? '...' : ''),
+        })
+      }
+    } catch {
+      // Not a URL, just show the content
+      toast({
+        title: 'QR Code Scanned',
+        description: 'Content: ' + data.substring(0, 50) + (data.length > 50 ? '...' : ''),
+      })
+    }
+  }
+
   return (
     <div className="space-y-12">
       {/* Hero Section */}
@@ -50,7 +136,48 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleQRScan}>
+              <CardHeader className="text-center">
+                <QrCode className="h-10 w-10 mx-auto mb-2 text-primary" />
+                <CardTitle>Scan QR Code</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  Scan restaurant QR codes to view menus and make instant reservations
+                </CardDescription>
+              </CardContent>
+            </Card>
+            
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleEnableNotifications}>
+              <CardHeader className="text-center">
+                <Bell className="h-10 w-10 mx-auto mb-2 text-primary" />
+                <CardTitle>
+                  {notificationsEnabled ? 'Notifications On' : 'Enable Notifications'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  {notificationsEnabled 
+                    ? 'You\'ll receive booking confirmations and special offers'
+                    : 'Get notified about bookings and exclusive offers'
+                  }
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/nearby')}>
+              <CardHeader className="text-center">
+                <Camera className="h-10 w-10 mx-auto mb-2 text-primary" />
+                <CardTitle>AR Experience</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  View restaurants in augmented reality for immersive dining experiences
+                </CardDescription>
+              </CardContent>
+            </Card>
+            
             <Card>
               <CardHeader className="text-center">
                 <MapPin className="h-10 w-10 mx-auto mb-2 text-primary" />
@@ -83,18 +210,6 @@ export default function HomePage() {
               <CardContent>
                 <CardDescription className="text-center">
                   Read authentic reviews from verified diners
-                </CardDescription>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="text-center">
-                <Users className="h-10 w-10 mx-auto mb-2 text-primary" />
-                <CardTitle>Group Dining</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-center">
-                  Perfect for any group size, from intimate dinners to large parties
                 </CardDescription>
               </CardContent>
             </Card>
@@ -134,6 +249,19 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* QR Scanner Dialog */}
+      <Dialog open={showQRScanner} onOpenChange={setShowQRScanner}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Scan QR Code</DialogTitle>
+          </DialogHeader>
+          <QrScannerComponent
+            onResult={handleQRScanResult}
+            onClose={() => setShowQRScanner(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

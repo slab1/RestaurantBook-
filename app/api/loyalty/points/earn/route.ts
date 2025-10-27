@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient, LoyaltyTransactionType } from '@prisma/client'
+import { PrismaClient, LoyaltyTransactionType } from '@/lib/prisma'
 import { AuthService } from '@/lib/auth'
 import { validateSchema } from '@/lib/validation'
 import { logger } from '@/lib/logger'

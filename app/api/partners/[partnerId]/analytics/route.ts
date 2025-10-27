@@ -43,5 +43,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     )
   }
 }
-
-import { AnalyticsPeriod } from '@/lib/partner-integration'

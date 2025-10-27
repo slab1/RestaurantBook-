@@ -41,7 +41,7 @@ export function OfflineIndicator() {
   if (!showOffline) return null
 
   return (
-    <div className="fixed top-16 left-0 right-0 z-50 bg-orange-500 text-white px-4 py-2 text-center text-sm md:hidden">
+    <div className="fixed top-16 left-0 right-0 z-[90] bg-orange-500 text-white px-4 py-2 text-center text-sm md:hidden safe-area-top">
       <div className="flex items-center justify-center gap-2">
         <WifiOff className="h-4 w-4" />
         <span>You're offline. Some features may be limited.</span>
@@ -145,7 +145,7 @@ export function OfflineQueue() {
   }, [queue])
 
   return queue.length > 0 ? (
-    <Card className="fixed top-0 left-0 right-0 z-50 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 p-4">
+    <Card className="fixed top-0 left-0 right-0 z-[90] bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 p-4 safe-area-top">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />

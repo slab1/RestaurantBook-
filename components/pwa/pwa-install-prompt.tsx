@@ -26,7 +26,7 @@ export function PWAInstallPrompt() {
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-sm"
+        className="fixed bottom-20 left-4 right-4 z-40 md:left-auto md:right-4 md:max-w-sm md:bottom-4 safe-area-bottom"
       >
         <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
           <div className="flex items-start gap-3">

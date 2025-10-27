@@ -40,36 +40,22 @@ export function useAuthProvider(): AuthContextType {
   const router = useRouter();
 
   useEffect(() => {
-    // Check for existing token on mount
-    const storedToken = localStorage.getItem('auth-token');
-    if (storedToken) {
-      setToken(storedToken);
-      validateToken(storedToken);
-    } else {
-      setLoading(false);
-    }
+    // Check for existing session on mount
+    checkAuth();
   }, []);
 
-  const validateToken = async (token: string) => {
+  const checkAuth = async () => {
     try {
       const response = await fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {
-        const userData = await response.json();
-        setUser(userData.data.user);
-      } else {
-        // Token is invalid
-        localStorage.removeItem('auth-token');
-        setToken(null);
+        const data = await response.json();
+        setUser(data.user);
       }
     } catch (error) {
-      console.error('Token validation error:', error);
-      localStorage.removeItem('auth-token');
-      setToken(null);
+      console.error('Auth check failed:', error);
     } finally {
       setLoading(false);
     }
@@ -84,18 +70,18 @@ export function useAuthProvider(): AuthContextType {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.data.user);
-        setToken(data.data.token);
-        localStorage.setItem('auth-token', data.data.token);
-        return true;
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
+        if (data.user) {
+          setUser(data.user);
+          // Extract token from cookie instead of response
+          return true;
+        }
       }
+      return false;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -113,18 +99,17 @@ export function useAuthProvider(): AuthContextType {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.data.user);
-        setToken(data.data.token);
-        localStorage.setItem('auth-token', data.data.token);
-        return true;
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Registration failed');
+        if (data.user) {
+          setUser(data.user);
+          return true;
+        }
       }
+      return false;
     } catch (error) {
       console.error('Registration error:', error);
       return false;
@@ -133,10 +118,17 @@ export function useAuthProvider(): AuthContextType {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     setUser(null);
     setToken(null);
-    localStorage.removeItem('auth-token');
     router.push('/login');
   };
 
@@ -144,15 +136,10 @@ export function useAuthProvider(): AuthContextType {
     try {
       const response = await fetch('/api/auth/refresh', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setToken(data.data.token);
-        localStorage.setItem('auth-token', data.data.token);
         return true;
       } else {
         logout();

@@ -68,13 +68,6 @@ enum LoyaltyTransactionType {
   BONUS
 }
 
-enum LoyaltyTier {
-  BRONZE
-  SILVER
-  GOLD
-  PLATINUM
-}
-
 enum AchievementType {
   BADGE
   STREAK
@@ -115,15 +108,6 @@ enum PreferenceType {
   DIETARY
   OCCASION
   COMMUNICATION
-}
-
-enum EventType {
-  BIRTHDAY
-  ANNIVERSARY
-  BUSINESS_MEETING
-  DATE_NIGHT
-  CELEBRATION
-  CASUAL_DINING
 }
 
 enum DayOfWeek {
@@ -197,16 +181,6 @@ model User {
   
   // ============ LOYALTY SYSTEM RELATIONS ============
   loyaltyProfile          UserLoyaltyProfile?
-  userInteractions        UserInteraction[]
-  userTestAssignments     UserTestAssignment[]
-  userLanguagePreferences UserLanguagePreference[]
-  deliveryOrders          DeliveryOrder[]
-  deliveryFeedback        DeliveryFeedback[]
-  arInteractions          ARUserInteraction[]
-  arShares                ARSocialShare[]
-  arSessions              ARSession[]
-  userAchievements        UserAchievement[]
-  partnerTransactions     PartnerTransaction[]
 
   @@map("users")
 }
@@ -475,7 +449,7 @@ model UserPreference {
 model UserLoyaltyProfile {
   id                    String      @id @default(cuid())
   userId                String      @unique
-  currentTier           LoyaltyTier @default(BRONZE)
+  currentTier           String      @default("BRONZE")
   totalPointsEarned     Int         @default(0)
   totalPointsRedeemed   Int         @default(0)
   lifetimePoints        Int         @default(0)
@@ -535,7 +509,7 @@ model LoyaltyTransaction {
 model LoyaltyTier {
   id                    String     @id @default(cuid())
   name                  String     @unique
-  tier                  LoyaltyTier
+  tier                  String
   minPointsRequired     Int        @default(0)
   maxPointsRequired     Int? // NULL for highest tier
   pointsMultiplier      Float      @default(1.0) // Earn rate multiplier

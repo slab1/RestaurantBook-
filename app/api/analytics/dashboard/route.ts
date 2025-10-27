@@ -167,7 +167,7 @@ async function getBookingStats(whereClause: any) {
     prisma.booking.findMany({
       where: whereClause,
       select: { status: true },
-    }).then(bookings => {
+    }).then((bookings: { status: string }[]) => {
       const completed = bookings.filter(b => b.status === 'COMPLETED').length;
       return bookings.length > 0 ? (completed / bookings.length) * 100 : 0;
     }),
@@ -175,7 +175,7 @@ async function getBookingStats(whereClause: any) {
   
   return {
     total: totalBookings,
-    statusBreakdown: statusBreakdown.reduce((acc, item) => {
+    statusBreakdown: statusBreakdown.reduce((acc: Record<string, number>, item: any) => {
       acc[item.status] = item._count;
       return acc;
     }, {} as any),
@@ -201,14 +201,14 @@ async function getRevenueStats(whereClause: any) {
     }
   });
   
-  const totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
+  const totalRevenue = payments.reduce((sum: number, payment: any) => sum + payment.amount, 0);
   const avgOrderValue = payments.length > 0 ? totalRevenue / payments.length : 0;
-  const revenuePerGuest = payments.reduce((sum, payment) => {
+  const revenuePerGuest = payments.reduce((sum: number, payment: any) => {
     return sum + (payment.amount / payment.booking.partySize);
   }, 0) / payments.length || 0;
   
   // Daily revenue breakdown
-  const dailyRevenue = payments.reduce((acc, payment) => {
+  const dailyRevenue = payments.reduce((acc: Record<string, number>, payment: any) => {
     const date = payment.booking.bookingTime.toISOString().split('T')[0];
     acc[date] = (acc[date] || 0) + payment.amount;
     return acc;
@@ -237,11 +237,11 @@ async function getCustomerStats(whereClause: any) {
     }
   });
   
-  const uniqueCustomers = new Set(bookings.map(b => b.user.id)).size;
-  const newCustomers = bookings.filter(b => {
+  const uniqueCustomers = new Set(bookings.map((b: any) => b.user.id)).size;
+  const newCustomers = bookings.filter((b: any) => {
     const customerFirstBooking = bookings
-      .filter(booking => booking.user.id === b.user.id)
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())[0];
+      .filter((booking: any) => booking.user.id === b.user.id)
+      .sort((a: any, b: any) => a.createdAt.getTime() - b.createdAt.getTime())[0];
     return customerFirstBooking.id === b.id;
   }).length;
   
@@ -282,10 +282,10 @@ async function getTableUtilizationStats(whereClause: any) {
     })
   ]);
   
-  const tableUtilization = tables.map(table => {
-    const tableBookings = bookings.filter(b => b.table.id === table.id);
+  const tableUtilization = tables.map((table: any) => {
+    const tableBookings = bookings.filter((b: any) => b.table.id === table.id);
     const utilizationRate = tableBookings.length;
-    const avgOccupancy = tableBookings.reduce((sum, booking) => {
+    const avgOccupancy = tableBookings.reduce((sum: number, booking: any) => {
       return sum + (booking.partySize / table.capacity);
     }, 0) / tableBookings.length || 0;
     
@@ -318,14 +318,14 @@ async function getPopularTimesStats(whereClause: any) {
   });
   
   // Group by hour
-  const hourlyBreakdown = bookings.reduce((acc, booking) => {
+  const hourlyBreakdown = bookings.reduce((acc: Record<number, number>, booking: any) => {
     const hour = booking.bookingTime.getHours();
     acc[hour] = (acc[hour] || 0) + 1;
     return acc;
   }, {} as any);
   
   // Group by day of week
-  const dayOfWeekBreakdown = bookings.reduce((acc, booking) => {
+  const dayOfWeekBreakdown = bookings.reduce((acc: Record<number, number>, booking: any) => {
     const dayOfWeek = booking.bookingTime.getDay();
     acc[dayOfWeek] = (acc[dayOfWeek] || 0) + 1;
     return acc;
@@ -355,7 +355,7 @@ async function getTopCustomersStats(whereClause: any) {
   });
   
   const customersWithDetails = await Promise.all(
-    topCustomers.map(async (customer) => {
+    topCustomers.map(async (customer: any) => {
       const user = await prisma.user.findUnique({
         where: { id: customer.userId },
         select: {
