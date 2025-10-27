@@ -180,7 +180,13 @@ model User {
   arSessions              ARSession[]
   
   // ============ LOYALTY SYSTEM RELATIONS ============
-  loyaltyProfile          UserLoyaltyProfile?
+  loyaltyProfile              UserLoyaltyProfile?
+  loyaltyTransactions         LoyaltyTransaction[]
+  userAchievements            UserAchievement[]
+  userStreaks                 UserStreak[]
+  loyaltyEvents               LoyaltyEvent[]
+  partnerRewardRedemptions    PartnerRewardRedemption[]
+  loyaltyRedemptions          LoyaltyRedemption[]
 
   @@map("users")
 }
@@ -450,6 +456,7 @@ model UserLoyaltyProfile {
   id                    String      @id @default(cuid())
   userId                String      @unique
   currentTier           String      @default("BRONZE")
+  tierId                String?
   totalPointsEarned     Int         @default(0)
   totalPointsRedeemed   Int         @default(0)
   lifetimePoints        Int         @default(0)
@@ -465,6 +472,7 @@ model UserLoyaltyProfile {
 
   // Relations
   user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier                    LoyaltyTier?              @relation(fields: [tierId], references: [id])
   transactions            LoyaltyTransaction[]
   redemptions             LoyaltyRedemption[]
   achievements            UserAchievement[]
@@ -528,6 +536,7 @@ model LoyaltyTier {
 
   // Relations
   userProfiles          UserLoyaltyProfile[]
+  achievements          Achievement[]
 
   @@index([tier])
   @@index([minPointsRequired])
@@ -544,7 +553,8 @@ model Achievement {
   icon                  String? // Icon identifier
   badgeImage            String? // Badge image URL
   pointsReward          Int                 @default(0)
-  tierRequirement       LoyaltyTier?
+  tierRequirementId     String?
+  tierRequirement       LoyaltyTier?        @relation(fields: [tierRequirementId], references: [id])
   minStreakDays         Int?
   maxStreakDays         Int?
   minSpentAmount        Decimal?            @db.Decimal(12, 2)
