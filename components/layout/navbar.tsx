@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, LogOut, Settings, Calendar, Building2 } from 'lucide-react'
+import { User, LogOut, Settings, Calendar, Building2, Zap } from 'lucide-react'
 
 export function Navbar() {
   const { user, logout } = useAuth()
@@ -34,6 +34,13 @@ export function Navbar() {
                   <Button variant="ghost">
                     <Calendar className="mr-2 h-4 w-4" />
                     My Bookings
+                  </Button>
+                </Link>
+
+                <Link href="/features">
+                  <Button variant="ghost">
+                    <Zap className="mr-2 h-4 w-4" />
+                    Features
                   </Button>
                 </Link>
 
