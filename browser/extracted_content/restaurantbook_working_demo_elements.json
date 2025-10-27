@@ -1,0 +1,118 @@
+📄 Extracted from page: RestaurantBook - Working Demo
+URL: https://6ugqbis6vhwy.space.minimax.io/demo.html
+
+Extracted content:
+```json
+{
+  "title": "RestaurantBook - Working Demo",
+  "url": "https://6ugqbis6vhwy.space.minimax.io/demo.html",
+  "summary": "This page is a working demo for 'RestaurantBook', highlighting that all critical issues, especially concerning the authentication system, have been fixed. It provides details on the fixed authentication API routes, demo credentials, and session management. The page also features a 'Core Features Test' section for QR scanning, notifications, and form input reliability. Additionally, it displays a list of 'Featured Restaurants' and includes a set of global navigation links.",
+  "key_points": [
+    {
+      "type": "Status/Information",
+      "description": "Indicates that 'All Critical Issues Fixed' and 'Authentication System Fixed'.",
+      "details": {
+        "api_routes": [
+          "/api/auth/login",
+          "/api/auth/me",
+          "/api/auth/register",
+          "/api/auth/logout"
+        ],
+        "demo_credentials": "demo@restaurantbook.com / password123",
+        "session_management": "Cookie-based session management implemented"
+      }
+    },
+    {
+      "type": "Test Component",
+      "name": "Scan QR Code",
+      "description": "An interactive element (implied button/link) to test QR scanning functionality.",
+      "functionality": "Tests QR scanning.",
+      "interactive": true
+    },
+    {
+      "type": "Test Component",
+      "name": "Enable Notifications",
+      "description": "An interactive element (implied button/link) to test notification functionality.",
+      "functionality": "Tests notification display.",
+      "interactive": true
+    },
+    {
+      "type": "Test Component - Form Input Reliability Test",
+      "name": "Form Input Reliability Test",
+      "description": "A section containing input fields and a test button.",
+      "elements": [
+        {
+          "type": "Input Field",
+          "label": "Email",
+          "interactive": true
+        },
+        {
+          "type": "Input Field",
+          "label": "Password",
+          "interactive": true
+        },
+        {
+          "type": "Button/Link",
+          "label": "Test Input Values",
+          "functionality": "Likely submits or processes the entered email and password for reliability testing.",
+          "interactive": true
+        }
+      ]
+    },
+    {
+      "type": "Navigation Elements",
+      "elements": [
+        {
+          "name": "Home",
+          "destination": "/",
+          "functionality": "Navigates to the homepage.",
+          "interactive": true
+        },
+        {
+          "name": "Search",
+          "destination": "/restaurants",
+          "functionality": "Navigates to the restaurant search page.",
+          "interactive": true
+        },
+        {
+          "name": "Bookings",
+          "destination": "/bookings",
+          "functionality": "Navigates to the bookings page.",
+          "interactive": true
+        },
+        {
+          "name": "Nearby",
+          "destination": "/nearby",
+          "functionality": "Navigates to a page displaying nearby locations/restaurants.",
+          "interactive": true
+        },
+        {
+          "name": "Profile",
+          "destination": "/profile",
+          "functionality": "Navigates to the user profile page.",
+          "interactive": true
+        }
+      ]
+    },
+    {
+      "type": "Displayed Content (Non-interactive)",
+      "name": "Featured Restaurants",
+      "description": "Listings of sample restaurants ('The Golden Spoon', 'Bella Vista', 'Sakura Sushi') with brief descriptions, price ranges, and ratings."
+    },
+    {
+      "type": "Other Element",
+      "name": "Close/Dismiss Button (implied)",
+      "description": "A '×' character at the bottom, often used as a close or dismiss button, though its specific functionality here is not explicitly defined.",
+      "interactive": true
+    }
+  ],
+  "relevant_links": [
+    "/",
+    "/restaurants",
+    "/bookings",
+    "/nearby",
+    "/profile"
+  ],
+  "file_name": "restaurantbook_working_demo_elements.json"
+}
+```
