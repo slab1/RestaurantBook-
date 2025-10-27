@@ -19,7 +19,7 @@
         "id": "3",
         "content": "Enhanced booking system with calendar integration",
         "details": "Upgrade the booking system with:\n- Real-time availability calendar\n- Time slot selection with visual indicators\n- Table preference selection (window, outdoor, etc.)\n- Group booking options for parties > 8\n- Special occasion booking (birthday, anniversary)\n- Deposit handling for large parties\n- Booking confirmation emails/SMS",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "4": {

@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { MobileBookingForm } from '@/components/booking/mobile-booking-form'
-import { useToast } from '@/hooks/use-toast'
+import { EnhancedBookingForm, EnhancedBookingFormData } from '@/components/booking/enhanced-booking-form'
+import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/components/providers/auth-provider'
 import { 
   MapPin, 
@@ -593,7 +593,7 @@ export default function RestaurantDetailClient({ restaurantId }: RestaurantDetai
     return () => clearTimeout(timer)
   }, [restaurantId])
 
-  const handleBooking = async (bookingData: any) => {
+  const handleBooking = async (bookingData: EnhancedBookingFormData) => {
     try {
       // Handle booking submission
       const response = await axios.post('/api/bookings', {
@@ -1075,9 +1075,10 @@ export default function RestaurantDetailClient({ restaurantId }: RestaurantDetai
 
       {/* Booking Form Dialog */}
       <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-          <MobileBookingForm
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+          <EnhancedBookingForm
             restaurantName={restaurant.name}
+            restaurantId={restaurant.id}
             onSubmit={handleBooking}
             onCancel={() => setShowBookingForm(false)}
           />
