@@ -3,45 +3,45 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Create individual restaurant detail pages",
-        "details": "Build dynamic pages at /restaurants/[id] with comprehensive restaurant information including:\n- Restaurant gallery with multiple images\n- Detailed description, hours, contact info\n- Reviews and ratings section\n- Available time slots and booking calendar\n- Menu preview with popular dishes\n- Map integration for location\n- Social sharing capabilities",
+        "content": "Create individual restaurant detail pages at /restaurants/[id]",
+        "details": "Dynamic pages with galleries, reviews, booking calendar, menu preview, map integration, and social sharing",
         "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Create restaurant menu pages",
-        "details": "Build menu pages at /restaurants/[id]/menu with:\n- Categorized menu items (appetizers, mains, desserts, drinks)\n- Item images, descriptions, prices, dietary info\n- Search and filter functionality\n- Add to favorites feature\n- Allergen information\n- Special offers and daily specials",
+        "content": "Create restaurant menu pages at /restaurants/[id]/menu",
+        "details": "Categorized items, search/filter, dietary info, favorites, allergen warnings, special offers",
         "status": "completed",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Enhanced booking system with calendar integration",
-        "details": "Upgrade the booking system with:\n- Real-time availability calendar\n- Time slot selection with visual indicators\n- Table preference selection (window, outdoor, etc.)\n- Group booking options for parties > 8\n- Special occasion booking (birthday, anniversary)\n- Deposit handling for large parties\n- Booking confirmation emails/SMS",
+        "content": "Implement enhanced booking system",
+        "details": "Interactive calendar, time slots, table preferences, special occasions, large party handling, multi-step process, payment/deposit, multi-channel confirmation",
         "status": "completed",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Booking management dashboard",
-        "details": "Create user booking management with:\n- View upcoming bookings\n- Modify/cancel bookings with policies\n- Booking history\n- Re-book favorite restaurants\n- Review reminders\n- Loyalty points tracking for bookings\n- Push notifications for booking reminders",
-        "status": "pending",
-        "priority": "medium"
+        "content": "Create booking management dashboard for users at /bookings",
+        "details": "✅ Upcoming bookings section with reservation cards ✅ Modify/cancel with 24-hour policy enforcement ✅ Booking history with past reservations ✅ Re-book functionality for quick rebooking ✅ Review reminder system for unreviewed visits ✅ Loyalty points tracker with membership tier ✅ Push notification preferences toggle ✅ Cancellation policy with refund information ✅ Mock data for demonstration",
+        "status": "completed",
+        "priority": "high"
       },
       "5": {
         "id": "5",
-        "content": "Restaurant owner dashboard",
-        "details": "Build restaurant management interface:\n- Table availability management\n- Booking requests approval/decline\n- Menu management (add/edit items)\n- Restaurant profile editing\n- Customer reviews management\n- Analytics and booking insights\n- Special offers management",
+        "content": "Build restaurant owner dashboard",
+        "details": "Table availability management, booking approval/decline, menu management, profile editing, customer reviews management, analytics and insights, special offers management",
         "status": "pending",
-        "priority": "medium"
+        "priority": "high"
       },
       "6": {
         "id": "6",
-        "content": "Advanced features integration",
-        "details": "Implement additional features:\n- Wait list functionality when fully booked\n- Pre-order capabilities from menu\n- Table check-in via QR code\n- Split bill calculator\n- Group ordering for large parties\n- Restaurant loyalty program integration\n- Social features (share photos, tag friends)",
+        "content": "Implement advanced features",
+        "details": "Wait list functionality, pre-order capabilities, QR check-in, split bill calculator, group ordering, loyalty program integration, social features",
         "status": "pending",
-        "priority": "low"
+        "priority": "medium"
       }
     }
   }
