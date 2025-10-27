@@ -31,9 +31,9 @@
       },
       "5": {
         "id": "5",
-        "content": "Build restaurant owner dashboard",
-        "details": "Table availability management, booking approval/decline, menu management, profile editing, customer reviews management, analytics and insights, special offers management",
-        "status": "pending",
+        "content": "Build restaurant owner dashboard at /dashboard",
+        "details": "✅ Dashboard overview with key metrics and quick stats ✅ Booking management with approval/decline workflow ✅ Menu management with item editing and availability ✅ Customer reviews management with response system ✅ Analytics and insights with revenue trends ✅ Special offers management with creation/editing ✅ Restaurant profile editing with contact info ✅ Comprehensive mock data for demonstration ✅ Sidebar navigation between sections",
+        "status": "completed",
         "priority": "high"
       },
       "6": {
