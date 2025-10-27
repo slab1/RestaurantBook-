@@ -27,7 +27,7 @@ const mockRestaurants: Restaurant[] = [
     cuisine: 'Contemporary',
     priceRange: '$$$',
     rating: 4.8,
-    imageUrl: '/imgs/restaurant_table_booking_app_icon_vector_blue.jpg',
+    imageUrl: '/imgs/elegant_fine_dining_restaurant_interior_wooden_decor.jpg',
     _count: { reviews: 127 }
   },
   {
@@ -38,7 +38,7 @@ const mockRestaurants: Restaurant[] = [
     cuisine: 'Italian',
     priceRange: '$$',
     rating: 4.6,
-    imageUrl: '/imgs/blue_gradient_table_icon_vector.jpg',
+    imageUrl: '/imgs/delicious_authentic_italian_spaghetti_pasta_fork.jpg',
     _count: { reviews: 89 }
   },
   {
@@ -49,7 +49,7 @@ const mockRestaurants: Restaurant[] = [
     cuisine: 'Japanese',
     priceRange: '$$',
     rating: 4.7,
-    imageUrl: '/imgs/blue_calendar_booking_app_icon.png',
+    imageUrl: '/imgs/modern_japanese_sushi_restaurant_bar_chefs.jpg',
     _count: { reviews: 156 }
   },
   {
@@ -60,7 +60,7 @@ const mockRestaurants: Restaurant[] = [
     cuisine: 'American',
     priceRange: '$',
     rating: 4.4,
-    imageUrl: '/imgs/blue_person_calendar_booking_icon.jpg',
+    imageUrl: '/imgs/american_comfort_food_feast_family_restaurant.jpg',
     _count: { reviews: 203 }
   },
   {
@@ -71,7 +71,7 @@ const mockRestaurants: Restaurant[] = [
     cuisine: 'Indian',
     priceRange: '$$',
     rating: 4.5,
-    imageUrl: '/imgs/blue_calendar_booking_time_icon_restaurant_app.png',
+    imageUrl: '/imgs/authentic_indian_chicken_tikka_masala_rice_naan.jpg',
     _count: { reviews: 98 }
   },
   {
@@ -82,7 +82,7 @@ const mockRestaurants: Restaurant[] = [
     cuisine: 'French', 
     priceRange: '$$$',
     rating: 4.9,
-    imageUrl: '/imgs/blue_calendar_booking_app_icon_flat_design.png',
+    imageUrl: '/imgs/elegant_french_bistro_wine_atmosphere.jpg',
     _count: { reviews: 76 }
   }
 ]

@@ -31,8 +31,10 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
         <Image
           src={restaurant.imageUrl || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800'}
           alt={restaurant.name}
-          fill
-          className="object-cover"
+          width={400}
+          height={200}
+          className="object-cover w-full h-full"
+          unoptimized
         />
         {restaurant.distance && (
           <Badge className="absolute top-2 right-2">

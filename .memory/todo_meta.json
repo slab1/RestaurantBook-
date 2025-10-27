@@ -28,6 +28,13 @@
         "details": "✅ COMPLETED: Production PWA deployed at https://xtzvewkqlayu.space.minimax.io/production-ready.html with all major fixes applied",
         "status": "completed",
         "priority": "high"
+      },
+      "5": {
+        "id": "5",
+        "content": "Fix restaurant images with proper photos",
+        "details": "✅ COMPLETED: Downloaded authentic restaurant images, updated Next.js configuration, modified FeaturedRestaurants component to use real restaurant photos instead of booking icons, rebuilt and deployed at https://9w7scv17nhoo.space.minimax.io",
+        "status": "completed",
+        "priority": "high"
       }
     }
   }
