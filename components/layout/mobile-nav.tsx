@@ -19,9 +19,13 @@ export function MobileBottomNav() {
   // Hide on desktop
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:hidden safe-area-bottom shadow-lg"
+      className="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:hidden safe-area-bottom shadow-lg backdrop-blur-sm bg-white/95 dark:bg-gray-950/95"
       role="navigation"
       aria-label="Mobile Navigation"
+      style={{
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)'
+      }}
     >
       <div className="grid grid-cols-5 h-16 pb-safe-bottom">
         {navItems.map((item) => {
@@ -31,28 +35,46 @@ export function MobileBottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 transition-colors min-h-[64px] touch-manipulation mobile-nav-link relative',
+                'flex flex-col items-center justify-center gap-1 transition-all duration-200 min-h-[64px] touch-manipulation mobile-nav-link relative user-select-none',
+                'hover:bg-blue-50 dark:hover:bg-blue-950/20 active:scale-95 active:bg-blue-100 dark:active:bg-blue-900/30',
                 isActive
                   ? 'text-blue-600 dark:text-blue-400'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
               )}
               style={{ 
-                WebkitTapHighlightColor: 'transparent',
+                WebkitTapHighlightColor: 'rgba(59, 130, 246, 0.3)',
+                tapHighlightColor: 'rgba(59, 130, 246, 0.3)',
                 touchAction: 'manipulation',
                 minHeight: '64px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                userSelect: 'none',
+                WebkitUserSelect: 'none'
               }}
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}
               onClick={(e) => {
-                // Enhanced touch feedback
+                // Enhanced touch feedback with haptic-like response
                 const target = e.currentTarget
                 target.style.transform = 'scale(0.95)'
+                target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'
                 setTimeout(() => {
                   target.style.transform = ''
-                }, 150)
+                  target.style.backgroundColor = ''
+                }, 200)
+              }}
+              onTouchStart={(e) => {
+                // Additional touch feedback for mobile devices
+                const target = e.currentTarget
+                target.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'
+              }}
+              onTouchEnd={(e) => {
+                // Clean up touch feedback
+                const target = e.currentTarget
+                setTimeout(() => {
+                  target.style.backgroundColor = ''
+                }, 100)
               }}
             >
               <item.icon 

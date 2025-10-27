@@ -42,6 +42,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
+      // For static export: Check localStorage for demo authentication
+      const storedUser = localStorage.getItem('demo_user')
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+        setLoading(false)
+        return
+      }
+
+      // Fallback: Try API route if available (for server deployment)
       const response = await fetch('/api/auth/me', {
         credentials: 'include',
       })
@@ -61,6 +70,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true)
+      
+      // For static export: Client-side demo authentication
+      if (email === 'demo@restaurantbook.com' && password === 'password123') {
+        const demoUser: User = {
+          id: 'demo-user-123',
+          email: 'demo@restaurantbook.com',
+          firstName: 'Demo',
+          lastName: 'User',
+          role: 'customer',
+          avatar: '',
+          emailVerified: true,
+          twoFactorEnabled: false,
+        }
+        
+        localStorage.setItem('demo_user', JSON.stringify(demoUser))
+        setUser(demoUser)
+        return true
+      }
+
+      // Fallback: Try API route if available (for server deployment)
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -79,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return false
     } catch (error) {
-      console.debug('Login not available:', error)
+      console.debug('Login error:', error)
       return false
     } finally {
       setLoading(false)
@@ -89,25 +118,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (data: RegisterData): Promise<boolean> => {
     try {
       setLoading(true)
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-        credentials: 'include',
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        if (result.user) {
-          setUser(result.user)
-          return true
-        }
+      
+      // For static export: Client-side demo registration
+      const newUser: User = {
+        id: `user-${Date.now()}`,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: data.role || 'customer',
+        avatar: '',
+        emailVerified: false,
+        twoFactorEnabled: false,
       }
-      return false
+      
+      localStorage.setItem('demo_user', JSON.stringify(newUser))
+      setUser(newUser)
+      return true
     } catch (error) {
-      console.debug('Registration not available:', error)
+      console.debug('Registration error:', error)
+      
+      // Fallback: Try API route if available (for server deployment)
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+          credentials: 'include',
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          if (result.user) {
+            setUser(result.user)
+            return true
+          }
+        }
+      } catch (apiError) {
+        console.debug('API registration failed:', apiError)
+      }
+      
       return false
     } finally {
       setLoading(false)
@@ -116,6 +167,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
+      // For static export: Clear localStorage
+      localStorage.removeItem('demo_user')
+      
+      // Fallback: Try API route if available (for server deployment)
       await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',

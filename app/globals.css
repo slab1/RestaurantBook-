@@ -119,9 +119,26 @@
       -webkit-touch-callout: none;
     }
 
-    /* Prevent layout shift during animations */
+    /* Enhanced mobile navigation styles */
     .mobile-nav-link {
       will-change: transform;
+      -webkit-tap-highlight-color: rgba(59, 130, 246, 0.3);
+      tap-highlight-color: rgba(59, 130, 246, 0.3);
+      position: relative;
+      border-radius: 8px;
+      margin: 2px;
+    }
+
+    .mobile-nav-link::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      z-index: -1;
+    }
+
+    .mobile-nav-link:active {
+      transform: scale(0.95);
+      background-color: rgba(59, 130, 246, 0.1);
     }
   }
 
