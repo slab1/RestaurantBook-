@@ -78,7 +78,7 @@ export function MobileRestaurantCard({
   return (
     <div className="w-full max-w-sm mx-auto">
       <Card 
-        className=\"overflow-hidden mobile-card relative"
+        className="overflow-hidden mobile-card relative"
         {...swipeHandlers}
       >
         {/* Image Container */}
