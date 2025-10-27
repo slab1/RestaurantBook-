@@ -3,45 +3,59 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Create individual restaurant detail pages at /restaurants/[id]",
-        "details": "Dynamic pages with galleries, reviews, booking calendar, menu preview, map integration, and social sharing",
-        "status": "completed",
+        "content": "Design admin dashboard architecture and navigation structure",
+        "details": "Plan the overall admin interface layout, navigation menu, role-based access controls, and dashboard overview with key metrics",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Create restaurant menu pages at /restaurants/[id]/menu",
-        "details": "Categorized items, search/filter, dietary info, favorites, allergen warnings, special offers",
-        "status": "completed",
+        "content": "Build user management system",
+        "details": "Create interface to view, search, edit, suspend, and delete users (customers and restaurant owners). Include user activity logs, registration approval workflows, and bulk operations",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Implement enhanced booking system",
-        "details": "Interactive calendar, time slots, table preferences, special occasions, large party handling, multi-step process, payment/deposit, multi-channel confirmation",
-        "status": "completed",
+        "content": "Implement restaurant management tools",
+        "details": "Build tools to approve new restaurant applications, edit restaurant details, manage restaurant status (active/inactive), handle restaurant verification, and restaurant performance metrics",
+        "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Create booking management dashboard for users at /bookings",
-        "details": "✅ Upcoming bookings section with reservation cards ✅ Modify/cancel with 24-hour policy enforcement ✅ Booking history with past reservations ✅ Re-book functionality for quick rebooking ✅ Review reminder system for unreviewed visits ✅ Loyalty points tracker with membership tier ✅ Push notification preferences toggle ✅ Cancellation policy with refund information ✅ Mock data for demonstration",
-        "status": "completed",
-        "priority": "high"
+        "content": "Create booking management and oversight system",
+        "details": "Develop interface to view all bookings across the platform, handle booking disputes, manage cancellations/refunds, track booking patterns, and generate booking reports",
+        "status": "pending",
+        "priority": "medium"
       },
       "5": {
         "id": "5",
-        "content": "Build restaurant owner dashboard at /dashboard",
-        "details": "✅ Dashboard overview with key metrics and quick stats ✅ Booking management with approval/decline workflow ✅ Menu management with item editing and availability ✅ Customer reviews management with response system ✅ Analytics and insights with revenue trends ✅ Special offers management with creation/editing ✅ Restaurant profile editing with contact info ✅ Comprehensive mock data for demonstration ✅ Sidebar navigation between sections",
-        "status": "completed",
-        "priority": "high"
+        "content": "Build content moderation tools",
+        "details": "Create system to review and moderate user reviews, social media posts, reported content, handle flagged content workflows, and maintain content quality standards",
+        "status": "pending",
+        "priority": "medium"
       },
       "6": {
         "id": "6",
-        "content": "Implement advanced features",
-        "details": "✅ Wait list functionality with join/leave, position tracking, ready notifications ✅ Pre-order capabilities with pickup time, item customization, order tracking ✅ QR check-in with code generation, scan history, instant table check-in ✅ Split bill calculator with item assignment, tax/tip handling, payment requests ✅ Group ordering with participant management, deadline tracking, payment status ✅ Enhanced loyalty program with points tracking, tier system, reward redemption ✅ Social features with dining posts, friend activity, trending restaurants, achievements ✅ Comprehensive features dashboard with 7 main sections ✅ Navigation integration in both desktop and mobile interfaces ✅ Mock data for demonstration of all features",
-        "status": "completed",
+        "content": "Develop system analytics and reporting dashboard",
+        "details": "Build comprehensive analytics showing platform usage statistics, revenue analytics, user behavior insights, growth metrics, and customizable reporting tools",
+        "status": "pending",
         "priority": "medium"
+      },
+      "7": {
+        "id": "7",
+        "content": "Implement customer support and communication tools",
+        "details": "Create support ticket management system, direct messaging with users, FAQ management, announcement system, and support analytics",
+        "status": "pending",
+        "priority": "low"
+      },
+      "8": {
+        "id": "8",
+        "content": "Add security and compliance features",
+        "details": "Build audit logs, security monitoring dashboard, compliance reporting, data privacy tools, and admin activity tracking",
+        "status": "pending",
+        "priority": "low"
       }
     }
   }
