@@ -5,7 +5,7 @@
         "id": "1",
         "content": "Create individual restaurant detail pages",
         "details": "Build dynamic pages at /restaurants/[id] with comprehensive restaurant information including:\n- Restaurant gallery with multiple images\n- Detailed description, hours, contact info\n- Reviews and ratings section\n- Available time slots and booking calendar\n- Menu preview with popular dishes\n- Map integration for location\n- Social sharing capabilities",
-        "status": "pending",
+        "status": "in_progress",
         "priority": "high"
       },
       "2": {
