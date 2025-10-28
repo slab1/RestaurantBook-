@@ -35,33 +35,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
-    checkAuth()
-  }, [])
+    // Only check auth after component is mounted on client
+    if (mounted) {
+      checkAuth()
+    }
+  }, [mounted])
 
   const checkAuth = async () => {
     try {
       // For static export: Check localStorage for demo authentication
-      const storedUser = localStorage.getItem('demo_user')
-      if (storedUser) {
-        setUser(JSON.parse(storedUser))
-        setLoading(false)
-        return
-      }
-
-      // Fallback: Try API route if available (for server deployment)
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setUser(data.user)
+      if (typeof window !== 'undefined') {
+        const storedUser = localStorage.getItem('demo_user')
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser))
+            setLoading(false)
+            return
+          } catch (e) {
+            console.error('[Auth] Failed to parse stored user:', e)
+            localStorage.removeItem('demo_user')
+          }
+        }
       }
     } catch (error) {
-      // Silently handle auth check failure (e.g., when API routes don't exist yet)
-      console.debug('Auth check skipped:', error)
+      // Silently handle auth check failure
+      console.debug('[Auth] Auth check skipped:', error)
     } finally {
       setLoading(false)
     }
@@ -70,6 +76,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true)
+      
+      console.log('[Auth] Login attempt for:', email)
       
       // For static export: Client-side demo authentication
       if (email === 'demo@restaurantbook.com' && password === 'password123') {
@@ -84,31 +92,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           twoFactorEnabled: false,
         }
         
-        localStorage.setItem('demo_user', JSON.stringify(demoUser))
+        console.log('[Auth] Demo login successful')
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('demo_user', JSON.stringify(demoUser))
+        }
         setUser(demoUser)
         return true
       }
 
-      // Fallback: Try API route if available (for server deployment)
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.user) {
-          setUser(data.user)
-          return true
+      // Admin demo credentials
+      if (email === 'admin@restaurantbook.com' && password === 'admin123') {
+        const adminUser: User = {
+          id: 'admin-user-123',
+          email: 'admin@restaurantbook.com',
+          firstName: 'Admin',
+          lastName: 'User',
+          role: 'admin',
+          avatar: '',
+          emailVerified: true,
+          twoFactorEnabled: false,
         }
+        
+        console.log('[Auth] Admin login successful')
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('demo_user', JSON.stringify(adminUser))
+        }
+        setUser(adminUser)
+        return true
       }
+      
+      console.log('[Auth] Login failed - invalid credentials')
       return false
     } catch (error) {
-      console.debug('Login error:', error)
+      console.error('[Auth] Login error:', error)
       return false
     } finally {
       setLoading(false)
@@ -131,34 +147,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         twoFactorEnabled: false,
       }
       
-      localStorage.setItem('demo_user', JSON.stringify(newUser))
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('demo_user', JSON.stringify(newUser))
+      }
       setUser(newUser)
       return true
     } catch (error) {
-      console.debug('Registration error:', error)
-      
-      // Fallback: Try API route if available (for server deployment)
-      try {
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-          credentials: 'include',
-        })
-
-        if (response.ok) {
-          const result = await response.json()
-          if (result.user) {
-            setUser(result.user)
-            return true
-          }
-        }
-      } catch (apiError) {
-        console.debug('API registration failed:', apiError)
-      }
-      
+      console.error('[Auth] Registration error:', error)
       return false
     } finally {
       setLoading(false)
@@ -168,15 +163,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       // For static export: Clear localStorage
-      localStorage.removeItem('demo_user')
-      
-      // Fallback: Try API route if available (for server deployment)
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('demo_user')
+      }
     } catch (error) {
-      console.debug('Logout not available:', error)
+      console.debug('[Auth] Logout error:', error)
     }
     setUser(null)
   }

@@ -53,14 +53,18 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    console.log('[Login Page] Form submitted')
+    
     // Prevent multiple submissions
     if (submittingRef.current || loading) {
+      console.log('[Login Page] Submission prevented - already in progress')
       return
     }
     
     // Validate form
     const validationErrors = validateForm(formData)
     if (Object.keys(validationErrors).length > 0) {
+      console.log('[Login Page] Validation errors:', validationErrors)
       setErrors(validationErrors)
       toast({
         title: 'Validation Error',
@@ -81,25 +85,32 @@ export default function LoginPage() {
       const email = currentData.get('email') as string
       const password = currentData.get('password') as string
       
+      console.log('[Login Page] Calling login with:', email)
       const success = await login(email, password)
+      console.log('[Login Page] Login result:', success)
       
       if (success) {
         toast({
           title: 'Welcome back!',
           description: 'You have been successfully logged in.',
         })
-        router.push('/')
+        console.log('[Login Page] Redirecting to homepage...')
+        setTimeout(() => {
+          router.push('/')
+        }, 500)
       } else {
+        console.log('[Login Page] Login failed - showing error')
         toast({
           title: 'Login failed',
-          description: 'Invalid email or password. Please try again.',
+          description: 'Invalid email or password. Try: demo@restaurantbook.com / password123',
           variant: 'destructive',
         })
       }
     } catch (error: any) {
+      console.error('[Login Page] Exception during login:', error)
       toast({
         title: 'Login failed',
-        description: 'An error occurred during login. Please try again.',
+        description: `Error: ${error.message || 'Unknown error occurred'}`,
         variant: 'destructive',
       })
     } finally {
@@ -133,6 +144,15 @@ export default function LoginPage() {
           <CardDescription>
             Sign in to your account to continue booking amazing restaurants
           </CardDescription>
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">Demo Credentials</p>
+            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+              <span className="font-mono">demo@restaurantbook.com</span>
+            </p>
+            <p className="text-xs text-blue-700 dark:text-blue-300">
+              <span className="font-mono">password123</span>
+            </p>
+          </div>
         </CardHeader>
         
         <CardContent>

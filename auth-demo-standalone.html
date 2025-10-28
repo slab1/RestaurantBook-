@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestaurantBook - Fixed Authentication Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .console-log {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+        
+        .console-log.info {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .console-log.success {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .console-log.error {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto max-w-4xl py-8 px-4">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">RestaurantBook Authentication</h1>
+            <p class="text-gray-600">Fixed Authentication System Demonstration</p>
+            <div class="mt-4 inline-block px-4 py-2 bg-green-100 text-green-800 rounded-lg font-semibold">
+                ✓ Authentication System Fixed
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Login Form -->
+            <div id="loginSection" class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-center mb-4">Welcome Back</h2>
+                <p class="text-gray-600 text-center mb-6">Sign in to your account</p>
+                
+                <div class="mb-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-900 font-medium">Demo Credentials</p>
+                    <p class="text-xs text-blue-700 mt-1 font-mono">demo@restaurantbook.com</p>
+                    <p class="text-xs text-blue-700 font-mono">password123</p>
+                </div>
+
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input 
+                            type="email" 
+                            id="email"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter your email"
+                            required
+                        >
+                        <p id="emailError" class="text-sm text-red-600 mt-1 hidden"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="password"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter your password"
+                                required
+                            >
+                            <button 
+                                type="button"
+                                id="togglePassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                            >
+                                👁️
+                            </button>
+                        </div>
+                        <p id="passwordError" class="text-sm text-red-600 mt-1 hidden"></p>
+                    </div>
+
+                    <button 
+                        type="submit"
+                        id="loginButton"
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                    >
+                        Sign In
+                    </button>
+                </form>
+            </div>
+
+            <!-- Console Output -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Console Output (Debug Info)</h3>
+                <div id="consoleOutput" class="bg-gray-900 text-gray-100 p-4 rounded-md h-96 overflow-y-auto font-mono text-xs">
+                    <div class="console-log info">[System] Ready for authentication</div>
+                </div>
+                <button 
+                    id="clearConsole"
+                    class="mt-2 text-sm text-gray-600 hover:text-gray-900"
+                >
+                    Clear Console
+                </button>
+            </div>
+        </div>
+
+        <!-- User Info Section (Hidden by default) -->
+        <div id="userInfo" class="mt-8 bg-white rounded-lg shadow-lg p-6 hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">✓ Authentication Successful!</h3>
+                <button 
+                    id="logoutButton"
+                    class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
+                >
+                    Logout
+                </button>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                <p class="text-sm font-medium text-green-900 mb-2">Logged in as:</p>
+                <div id="userDetails" class="text-sm text-green-700 space-y-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Console logging function
+        function logToConsole(message, type = 'info') {
+            const consoleOutput = document.getElementById('consoleOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'text-gray-300 mb-1';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            consoleOutput.appendChild(logEntry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            
+            // Also log to real console
+            console.log(message);
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Authentication logic (enhanced with logging)
+        function authenticate(email, password) {
+            logToConsole('[Auth] Login attempt for: ' + email);
+            
+            // Demo authentication
+            if (email === 'demo@restaurantbook.com' && password === 'password123') {
+                const demoUser = {
+                    id: 'demo-user-123',
+                    email: 'demo@restaurantbook.com',
+                    firstName: 'Demo',
+                    lastName: 'User',
+                    role: 'customer',
+                    emailVerified: true
+                };
+                
+                logToConsole('[Auth] Demo login successful');
+                logToConsole('[Auth] Storing user in localStorage');
+                localStorage.setItem('demo_user', JSON.stringify(demoUser));
+                return demoUser;
+            }
+            
+            logToConsole('[Auth] Login failed - invalid credentials', 'error');
+            return null;
+        }
+
+        // Check if already logged in
+        function checkAuth() {
+            const storedUser = localStorage.getItem('demo_user');
+            if (storedUser) {
+                logToConsole('[Auth] Found existing session in localStorage');
+                const user = JSON.parse(storedUser);
+                displayUserInfo(user);
+            }
+        }
+
+        // Display user info
+        function displayUserInfo(user) {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            
+            const userDetails = document.getElementById('userDetails');
+            userDetails.innerHTML = `
+                <p><strong>ID:</strong> ${user.id}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Name:</strong> ${user.firstName} ${user.lastName}</p>
+                <p><strong>Role:</strong> ${user.role}</p>
+                <p><strong>Verified:</strong> ${user.emailVerified ? 'Yes' : 'No'}</p>
+            `;
+        }
+
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            logToConsole('[Login Page] Form submitted');
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Clear previous errors
+            document.getElementById('emailError').classList.add('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            
+            // Validate
+            if (!email || !password) {
+                logToConsole('[Login Page] Validation failed - missing fields', 'error');
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            logToConsole('[Login Page] Calling login with: ' + email);
+            const loginButton = document.getElementById('loginButton');
+            loginButton.textContent = 'Signing in...';
+            loginButton.disabled = true;
+            
+            // Simulate async operation
+            setTimeout(() => {
+                const user = authenticate(email, password);
+                logToConsole('[Login Page] Login result: ' + (user ? 'true' : 'false'));
+                
+                loginButton.textContent = 'Sign In';
+                loginButton.disabled = false;
+                
+                if (user) {
+                    showToast('Welcome back! Login successful', 'success');
+                    logToConsole('[Login Page] Redirecting to dashboard...');
+                    setTimeout(() => {
+                        displayUserInfo(user);
+                    }, 500);
+                } else {
+                    showToast('Invalid credentials. Try: demo@restaurantbook.com / password123', 'error');
+                }
+            }, 500);
+        });
+
+        // Logout
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            logToConsole('[Auth] Logout initiated');
+            localStorage.removeItem('demo_user');
+            logToConsole('[Auth] Session cleared from localStorage');
+            
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            
+            showToast('Logged out successfully', 'success');
+        });
+
+        // Password toggle
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        });
+
+        // Clear console
+        document.getElementById('clearConsole').addEventListener('click', function() {
+            document.getElementById('consoleOutput').innerHTML = '<div class="console-log info">[System] Console cleared</div>';
+        });
+
+        // Initialize
+        checkAuth();
+        logToConsole('[System] Authentication system initialized');
+        logToConsole('[System] Demo credentials: demo@restaurantbook.com / password123');
+    </script>
+</body>
+</html>

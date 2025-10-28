@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ToastProvider } from '@/components/ui/toast'
 import { Toaster } from '@/components/ui/toaster'
+import { ErrorBoundary } from '@/components/error-boundary'
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -106,10 +107,12 @@ export default function RootLayout({
             `,
           }}
         />
-        <ToastProvider>
-          {children}
-          <Toaster />
-        </ToastProvider>
+        <ErrorBoundary>
+          <ToastProvider>
+            {children}
+            <Toaster />
+          </ToastProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

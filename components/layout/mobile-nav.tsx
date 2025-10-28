@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, Calendar, User, Zap } from 'lucide-react'
+import { Home, Search, Calendar, User, MapPin } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/restaurants', icon: Search, label: 'Search' },
   { href: '/bookings', icon: Calendar, label: 'Bookings' },
-  { href: '/features', icon: Zap, label: 'Features' },
+  { href: '/nearby', icon: MapPin, label: 'Nearby' },
   { href: '/profile', icon: User, label: 'Profile' },
 ]
 
@@ -19,15 +19,18 @@ export function MobileBottomNav() {
   // Hide on desktop
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:hidden safe-area-bottom shadow-lg backdrop-blur-sm bg-white/95 dark:bg-gray-950/95"
+      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 md:hidden shadow-lg backdrop-blur-sm bg-white/95 dark:bg-gray-950/95"
       role="navigation"
       aria-label="Mobile Navigation"
       style={{
+        zIndex: 9999,
         backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)'
+        WebkitBackdropFilter: 'blur(10px)',
+        pointerEvents: 'auto',
+        position: 'fixed'
       }}
     >
-      <div className="grid grid-cols-5 h-16 pb-safe-bottom">
+      <div className="grid grid-cols-5 h-16 pb-safe-bottom" style={{ pointerEvents: 'auto' }}>
         {navItems.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -35,42 +38,47 @@ export function MobileBottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 transition-all duration-200 min-h-[64px] touch-manipulation mobile-nav-link relative user-select-none',
-                'hover:bg-blue-50 dark:hover:bg-blue-950/20 active:scale-95 active:bg-blue-100 dark:active:bg-blue-900/30',
+                'flex flex-col items-center justify-center gap-1 transition-all duration-200 relative',
+                'hover:bg-blue-50 dark:hover:bg-blue-950/20',
                 isActive
                   ? 'text-blue-600 dark:text-blue-400'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
               )}
               style={{ 
                 WebkitTapHighlightColor: 'rgba(59, 130, 246, 0.3)',
-                tapHighlightColor: 'rgba(59, 130, 246, 0.3)',
                 touchAction: 'manipulation',
                 minHeight: '64px',
+                minWidth: '44px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                pointerEvents: 'auto',
+                cursor: 'pointer',
                 userSelect: 'none',
-                WebkitUserSelect: 'none'
+                WebkitUserSelect: 'none',
+                position: 'relative',
+                zIndex: 1
               }}
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}
               onClick={(e) => {
-                // Enhanced touch feedback with haptic-like response
+                console.log(`[MobileNav] Clicked: ${item.label} -> ${item.href}`)
+                // Enhanced touch feedback
                 const target = e.currentTarget
                 target.style.transform = 'scale(0.95)'
                 target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'
                 setTimeout(() => {
                   target.style.transform = ''
                   target.style.backgroundColor = ''
-                }, 200)
+                }, 150)
               }}
               onTouchStart={(e) => {
-                // Additional touch feedback for mobile devices
+                console.log(`[MobileNav] Touch start: ${item.label}`)
                 const target = e.currentTarget
-                target.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'
+                target.style.backgroundColor = 'rgba(59, 130, 246, 0.08)'
               }}
               onTouchEnd={(e) => {
-                // Clean up touch feedback
+                console.log(`[MobileNav] Touch end: ${item.label}`)
                 const target = e.currentTarget
                 setTimeout(() => {
                   target.style.backgroundColor = ''
@@ -79,16 +87,20 @@ export function MobileBottomNav() {
             >
               <item.icon 
                 className={cn(
-                  'h-5 w-5 transition-colors', 
+                  'h-5 w-5 transition-colors pointer-events-none', 
                   isActive && 'text-blue-600 dark:text-blue-400'
                 )} 
+                style={{ pointerEvents: 'none' }}
               />
-              <span className="text-xs font-medium leading-none">
+              <span className="text-xs font-medium leading-none pointer-events-none" style={{ pointerEvents: 'none' }}>
                 {item.label}
               </span>
               {/* Active indicator */}
               {isActive && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full" />
+                <div 
+                  className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full pointer-events-none" 
+                  style={{ pointerEvents: 'none' }}
+                />
               )}
             </Link>
           )
@@ -109,3 +121,4 @@ export function MobileHeader({ title }: { title: string }) {
     </header>
   )
 }
+
