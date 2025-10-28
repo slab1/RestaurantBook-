@@ -6,6 +6,7 @@ import { AuthProvider } from '@/components/providers/auth-provider'
 import { I18nProvider } from '@/lib/i18n/i18n-context'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { SafeClientProvider } from '@/components/providers/safe-client-provider'
+import { CartProvider } from '@/lib/cart-context'
 
 export default function MainLayout({
   children,
@@ -17,7 +18,8 @@ export default function MainLayout({
       <SafeClientProvider>
         <AuthProvider>
           <I18nProvider>
-            <div className="min-h-screen bg-background relative">
+            <CartProvider>
+              <div className="min-h-screen bg-background relative">
               {/* Desktop Navigation */}
               <div className="hidden md:block">
                 <Navbar />
@@ -46,6 +48,7 @@ export default function MainLayout({
               {/* PWA Install Prompt */}
               <PWAInstallPrompt />
             </div>
+            </CartProvider>
           </I18nProvider>
         </AuthProvider>
       </SafeClientProvider>

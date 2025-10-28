@@ -2,19 +2,23 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, Calendar, User, MapPin } from 'lucide-react'
+import { Home, Search, Calendar, User, ShoppingCart } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useCart } from '@/lib/cart-context'
+import { Badge } from '@/components/ui/badge'
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/restaurants', icon: Search, label: 'Search' },
+  { href: '/cart', icon: ShoppingCart, label: 'Cart', showBadge: true },
   { href: '/bookings', icon: Calendar, label: 'Bookings' },
-  { href: '/nearby', icon: MapPin, label: 'Nearby' },
   { href: '/profile', icon: User, label: 'Profile' },
 ]
 
 export function MobileBottomNav() {
   const pathname = usePathname()
+  const { getItemCount } = useCart()
+  const cartCount = getItemCount()
 
   // Hide on desktop
   return (
@@ -85,13 +89,24 @@ export function MobileBottomNav() {
                 }, 100)
               }}
             >
-              <item.icon 
-                className={cn(
-                  'h-5 w-5 transition-colors pointer-events-none', 
-                  isActive && 'text-blue-600 dark:text-blue-400'
-                )} 
-                style={{ pointerEvents: 'none' }}
-              />
+              <div className="relative">
+                <item.icon 
+                  className={cn(
+                    'h-5 w-5 transition-colors pointer-events-none', 
+                    isActive && 'text-blue-600 dark:text-blue-400'
+                  )} 
+                  style={{ pointerEvents: 'none' }}
+                />
+                {item.showBadge && cartCount > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] pointer-events-none"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    {cartCount}
+                  </Badge>
+                )}
+              </div>
               <span className="text-xs font-medium leading-none pointer-events-none" style={{ pointerEvents: 'none' }}>
                 {item.label}
               </span>

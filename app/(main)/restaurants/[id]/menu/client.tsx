@@ -14,6 +14,15 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/components/ui/use-toast'
+import { useCart } from '@/lib/cart-context'
+
+// Menu item fallback images by category
+const menuFallbackImages = {
+  appetizers: '/imgs/delicious_authentic_italian_spaghetti_pasta_fork.jpg',
+  mains: '/imgs/authentic_indian_chicken_tikka_masala_rice_naan.jpg',
+  desserts: '/imgs/family_friendly_american_comfort_food_spread.jpg',
+  drinks: '/imgs/elegant_french_bistro_wine_atmosphere.jpg',
+}
 
 interface MenuItem {
   id: string
@@ -550,6 +559,7 @@ const spiceLevelIndicator = (level?: number) => {
 export function RestaurantMenuClient({ restaurantId }: { restaurantId: string }) {
   const router = useRouter()
   const { toast } = useToast()
+  const { addItem, getItemCount } = useCart()
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -560,7 +570,6 @@ export function RestaurantMenuClient({ restaurantId }: { restaurantId: string })
   const [selectedDietary, setSelectedDietary] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState<string>('all')
   const [showSpecialOnly, setShowSpecialOnly] = useState(false)
-  const [cart, setCart] = useState<{ id: string; quantity: number }[]>([])
 
   useEffect(() => {
     const loadRestaurant = async () => {
@@ -602,21 +611,17 @@ export function RestaurantMenuClient({ restaurantId }: { restaurantId: string })
     })
   }
 
-  const addToCart = (itemId: string) => {
-    const existingItem = cart.find(item => item.id === itemId)
-    if (existingItem) {
-      setCart(cart.map(item => 
-        item.id === itemId 
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ))
-    } else {
-      setCart([...cart, { id: itemId, quantity: 1 }])
-    }
+  const addToCart = (item: MenuItem) => {
+    if (!restaurant) return
     
-    toast({
-      title: 'Added to cart',
-      description: 'Item has been added to your cart',
+    addItem({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: menuFallbackImages[item.category] || item.image,
+      category: item.category,
+      restaurantId: restaurant.id,
+      restaurantName: restaurant.name,
     })
   }
 
@@ -735,9 +740,13 @@ export function RestaurantMenuClient({ restaurantId }: { restaurantId: string })
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/cart')}
+              >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+                Cart ({getItemCount()})
               </Button>
             </div>
           </div>
@@ -899,7 +908,7 @@ export function RestaurantMenuClient({ restaurantId }: { restaurantId: string })
                       item={item}
                       isFavorite={favorites.includes(item.id)}
                       onToggleFavorite={() => toggleFavorite(item.id)}
-                      onAddToCart={() => addToCart(item.id)}
+                      onAddToCart={() => addToCart(item)}
                     />
                   ))}
                 </div>
@@ -919,7 +928,7 @@ export function RestaurantMenuClient({ restaurantId }: { restaurantId: string })
                     item={item}
                     isFavorite={favorites.includes(item.id)}
                     onToggleFavorite={() => toggleFavorite(item.id)}
-                    onAddToCart={() => addToCart(item.id)}
+                    onAddToCart={() => addToCart(item)}
                   />
                 )) || (
                   <div className="col-span-full text-center py-12">
@@ -969,16 +978,24 @@ function MenuItemCard({
   onToggleFavorite: () => void
   onAddToCart: () => void
 }) {
+  // Use fallback image if original doesn't exist
+  const imageSrc = menuFallbackImages[item.category] || item.image
+  
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
       <div className="relative">
         <div className="aspect-video relative bg-gray-200">
           <Image
-            src={item.image}
+            src={imageSrc}
             alt={item.name}
             fill
             unoptimized
             className="object-cover"
+            onError={(e) => {
+              // Fallback to category image if even that fails
+              const target = e.target as HTMLImageElement
+              target.src = menuFallbackImages[item.category] || menuFallbackImages.appetizers
+            }}
           />
           {item.isSpecial && (
             <Badge className="absolute top-2 left-2 bg-red-500 text-white">

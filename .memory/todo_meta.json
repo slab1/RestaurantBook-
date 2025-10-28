@@ -3,36 +3,36 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Fix Authentication System",
-        "details": "1. Debug React authentication errors causing login failures\n2. Implement proper authentication state management\n3. Add error handling and user feedback for failed logins\n4. Test with demo credentials (demo@restaurantbook.com / password123)\n5. Ensure authentication persists across page refreshes",
+        "content": "Fix Menu Images Loading Issues",
+        "details": "1. Investigate why menu images are not displaying properly\n2. Check image paths and ensure they are in the correct directory structure\n3. Fix any broken image links in menu components\n4. Add proper fallback images for menu items\n5. Test menu image loading across different categories",
         "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Repair Mobile Navigation System",
-        "details": "1. Fix bottom navigation button click handlers in mobile PWA\n2. Resolve 'Could not get position' errors for navigation elements [42-45]\n3. Test navigation across different mobile viewport sizes\n4. Ensure PWA mobile experience works properly\n5. Add proper routing for mobile navigation",
+        "content": "Fix Shopping Cart Functionality",
+        "details": "1. Debug cart state management issues\n2. Fix add/remove item functionality in cart\n3. Ensure cart persists across page navigation\n4. Fix cart total calculations\n5. Add proper cart UI feedback for user actions",
         "status": "completed",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Stabilize React Application Framework",
-        "details": "1. Debug and resolve React errors #418 and #423 causing application breakdown\n2. Implement React error boundaries to prevent complete failures\n3. Add fallback UI for when components fail to render\n4. Ensure all routes (/login, /register, /profile, /bookings) work correctly\n5. Test application stability across multiple deployments",
+        "content": "Enhance User Profile Features",
+        "details": "1. Improve profile page layout and design\n2. Add user preference settings\n3. Implement profile photo upload functionality\n4. Add user activity history (orders, bookings)\n5. Enhance profile information display",
         "status": "completed",
-        "priority": "high"
+        "priority": "medium"
       },
       "4": {
         "id": "4",
-        "content": "Fix Image Loading Failures",
-        "details": "1. Identify and fix 20+ failed image loads affecting visual appeal\n2. Resolve restaurant image loading issues\n3. Fix app icon loading problems (calendar icons, etc.)\n4. Implement fallback images for failed loads\n5. Optimize image delivery and paths",
+        "content": "Implement Account Settings Management",
+        "details": "1. Create dedicated account settings page\n2. Add password change functionality\n3. Implement notification preferences\n4. Add privacy settings options\n5. Create account deletion/deactivation feature",
         "status": "completed",
         "priority": "medium"
       },
       "5": {
         "id": "5",
-        "content": "Deploy and Test Fixed Application",
-        "details": "1. Deploy fixed application with all critical issues resolved\n2. Conduct comprehensive testing of authentication and navigation\n3. Test mobile PWA experience across different devices\n4. Verify search functionality works properly\n5. Generate deployment report and provide user access credentials",
+        "content": "Deploy Enhanced Application",
+        "details": "1. Deploy application with all fixes and enhancements\n2. Conduct comprehensive testing of new features\n3. Test cart functionality with real user interactions\n4. Verify menu images display correctly across all sections\n5. Generate deployment report with new features documentation",
         "status": "completed",
         "priority": "high"
       }

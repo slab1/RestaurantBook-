@@ -491,3 +491,59 @@ Manual QA testing required by user or QA team to verify:
 - Maintains consistency between user and restaurant modules
 - Comprehensive error handling and loading states
 - Routing fix applied based on prior successful resolution pattern
+
+## ✅ USER PROFILE & SETTINGS ENHANCEMENT - COMPLETE (2025-10-28)
+**Status**: FULLY IMPLEMENTED AND DEPLOYED
+**Deployment**: https://xh3tucqkkgq2.space.minimax.io
+**Build**: 38 pages generated successfully
+
+### All Features Implemented:
+
+#### Profile Page (/profile)
+1. ✅ Enhanced profile layout with tabbed interface
+2. ✅ Profile photo upload functionality with preview
+3. ✅ User statistics dashboard (total orders, bookings, reviews, favorites)
+4. ✅ Activity history (orders, bookings, cart items)
+5. ✅ User preferences management (cuisine types, dietary restrictions)
+
+#### Settings Page (/settings)
+1. ✅ Account settings tab (name, email, phone, location)
+2. ✅ Password change functionality
+3. ✅ Notification preferences (bookings, promotions, reviews, newsletters)
+4. ✅ Privacy settings (profile visibility, activity sharing, data download)
+5. ✅ Language preferences
+6. ✅ Account deletion with confirmation dialog
+
+### Implementation Details:
+- **Service Layer**: `/lib/user-profile-service.ts` (334 lines)
+- **Profile Page**: `/app/(main)/profile/client.tsx` (458 lines)
+- **Settings Page**: `/app/(main)/settings/client.tsx` (673 lines)
+- **UI Components**: Created `switch.tsx` and `textarea.tsx` in components/ui/
+- **Bundle Sizes**: Profile (7.53 kB), Settings (8.54 kB)
+- **localStorage Keys**: user_profile_{userId}, user_preferences_{userId}, user_settings_{userId}
+
+### Features Working:
+- Profile photo upload with file validation (images only, max 5MB)
+- Real-time preview of uploaded photos
+- Activity tracking (orders, bookings) with timestamps
+- Preferences with multi-select for cuisine types and dietary restrictions
+- Password validation with confirmation matching
+- Notification toggles for all categories
+- Privacy controls with data export functionality
+- Language selection dropdown
+- Account deletion with safety confirmation
+- All data persists in localStorage
+- Toast notifications for all actions
+- Responsive design for mobile and desktop
+
+### Technical Highlights:
+- Custom Switch component (native implementation, no Radix UI dependency)
+- Custom Textarea component for form inputs
+- Service layer pattern for data management
+- Type-safe TypeScript interfaces for all data structures
+- Tabbed interface for organized content sections
+- Modal dialogs for critical actions (account deletion)
+- Form validation for all input fields
+- Image file validation and preview generation
+
+**Status**: Code complete ✅ | Built ✅ | Deployed ✅ | Manual QA pending ⏳

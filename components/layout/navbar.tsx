@@ -9,10 +9,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, LogOut, Settings, Calendar, Building2, Zap } from 'lucide-react'
+import { User, LogOut, Settings, Calendar, Building2, Zap, ShoppingCart } from 'lucide-react'
+import { useCart } from '@/lib/cart-context'
+import { Badge } from '@/components/ui/badge'
 
 export function Navbar() {
   const { user, logout } = useAuth()
+  const { getItemCount } = useCart()
+  const itemCount = getItemCount()
 
   return (
     <nav className="border-b bg-background">
@@ -41,6 +45,20 @@ export function Navbar() {
                   <Button variant="ghost">
                     <Zap className="mr-2 h-4 w-4" />
                     Features
+                  </Button>
+                </Link>
+
+                <Link href="/cart">
+                  <Button variant="ghost" className="relative">
+                    <ShoppingCart className="h-4 w-4" />
+                    {itemCount > 0 && (
+                      <Badge 
+                        variant="destructive" 
+                        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                      >
+                        {itemCount}
+                      </Badge>
+                    )}
                   </Button>
                 </Link>
 
