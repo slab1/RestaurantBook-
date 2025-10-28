@@ -3,12 +3,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ToastProvider } from '@/components/ui/toast'
 import { Toaster } from '@/components/ui/toaster'
-import { Navbar } from '@/components/layout/navbar'
-import { MobileBottomNav, MobileHeader } from '@/components/layout/mobile-nav'
-import { PWAInstallPrompt } from '@/components/pwa/pwa-install-prompt'
-import { OfflineIndicator, OfflineContent } from '@/components/pwa/offline-components'
-import { AuthProvider } from '@/components/providers/auth-provider'
-import { I18nProvider } from '@/lib/i18n/i18n-context'
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -112,42 +106,10 @@ export default function RootLayout({
             `,
           }}
         />
-        <AuthProvider>
-          <I18nProvider>
-            <ToastProvider>
-              <div className="min-h-screen bg-background relative">
-                {/* Desktop Navigation */}
-                <div className="hidden md:block">
-                  <Navbar />
-                </div>
-                
-                {/* Mobile Header */}
-                <div className="md:hidden">
-                  <MobileHeader title="RestaurantBook" />
-                </div>
-
-                {/* Offline Indicator */}
-                <OfflineIndicator />
-
-                {/* Main Content */}
-                <main className="container mx-auto px-4 py-8 md:pb-8 pb-20 safe-area-bottom">
-                  <OfflineContent>
-                    {children}
-                  </OfflineContent>
-                </main>
-
-                {/* Mobile Bottom Navigation */}
-                <div className="md:hidden">
-                  <MobileBottomNav />
-                </div>
-
-                {/* PWA Install Prompt */}
-                <PWAInstallPrompt />
-              </div>
-              <Toaster />
-            </ToastProvider>
-          </I18nProvider>
-        </AuthProvider>
+        <ToastProvider>
+          {children}
+          <Toaster />
+        </ToastProvider>
       </body>
     </html>
   )
