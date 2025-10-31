@@ -5,35 +5,35 @@
         "id": "1",
         "content": "Choose ONE backend architecture (Supabase OR Prisma)",
         "details": "Analyze current usage, recommend primary backend, create migration plan for removing the unused one. Document decision and rationale.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
         "content": "Create tiered environment configuration system",
         "details": "Split .env.example into 3 tiers:\n- Tier 1 (Core): 5 vars - Database, Auth basics\n- Tier 2 (Basic): +8 vars - Payments, Maps\n- Tier 3 (Advanced): +27 vars - Social, Delivery\nCreate separate .env.core, .env.basic, .env.advanced files",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "3": {
         "id": "3",
         "content": "Implement centralized feature flag system",
         "details": "Create /lib/feature-flags.ts that auto-detects configured services and enables features accordingly. Update components to check feature flags before rendering.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "4": {
         "id": "4",
         "content": "Add centralized rate limit tracking",
         "details": "Create /lib/rate-limiter.ts with Redis-based tracking for all external APIs (Twitter, Facebook, Google Maps, etc.). Include remaining quota display and helpful error messages.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "5": {
         "id": "5",
         "content": "Consolidate documentation into single entry point",
         "details": "Create new /docs/README.md as single source of truth. Reorganize existing 20+ docs into logical structure: /features/, /deployment/, /api-reference/. Archive redundant docs.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "6": {
@@ -47,7 +47,7 @@
         "id": "7",
         "content": "Create health check endpoint (Quick Win)",
         "details": "Implement GET /api/health endpoint that checks connectivity and configuration status of all external services (database, redis, stripe, social APIs, etc.).",
-        "status": "pending",
+        "status": "completed",
         "priority": "medium"
       }
     }
