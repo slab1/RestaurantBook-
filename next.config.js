@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Removed 'output: export' for development server
   trailingSlash: true,
   images: {
     unoptimized: true,
