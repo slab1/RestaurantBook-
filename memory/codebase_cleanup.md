@@ -269,25 +269,30 @@ Full details: `/workspace/CODEBASE_CLEANUP_REPORT.md`
 
 ---
 
-## Development Server Status (2025-10-31)
+## Deployment Status (2025-10-31)
 
-**Status**: ✅ RUNNING
+**Status**: ✅ DEPLOYED
 
 ### Actions Taken:
 1. Created missing `imageLoader.js` (custom image loader for Next.js)
-2. Updated `next.config.js` (removed 'output: export' for dev mode)
-3. Started development server successfully
+2. Restored `output: 'export'` in `next.config.js` for static deployment
+3. Built production version successfully
+4. Deployed to web server
 
-### Server Details:
-- **URL**: http://localhost:3000
-- **Process ID**: 22412
-- **Startup Time**: 6.1 seconds
-- **Status**: ✅ Healthy
+### Deployment Details:
+- **Public URL**: https://rqrptgfvxam2.space.minimax.io
+- **Project Name**: restaurant-booking-system
+- **Project Type**: WebApps
+- **Build Output**: /workspace/out (static HTML export)
+- **Status**: ✅ Live and accessible
 
-### Startup Warnings (Non-Critical):
-- ⚠️ Invalid config key 'missingSuspenseWithCSRBailout' (deprecated)
-- ⚠️ Metadata warnings (themeColor, viewport) - non-blocking
+### Build Stats:
+- 41 static pages generated
+- Total routes: 32+ pages
+- Main bundle: 84.3 kB shared JS
+- Build time: ~30 seconds
 
-### Access:
-- Local: http://localhost:3000
-- Environment: .env.local loaded
+### Notes:
+- Static export mode (API routes disabled for static hosting)
+- Database connection warnings expected (not needed for static pages)
+- All client-side features functional
