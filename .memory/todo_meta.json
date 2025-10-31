@@ -3,59 +3,52 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Setup Supabase Backend Infrastructure",
-        "details": "1. Obtain Supabase credentials from user\n2. Design database schema (users, restaurants, bookings, orders, menu_items, tables)\n3. Create Supabase tables with proper relationships and RLS policies\n4. Migrate existing localStorage data structure to database schema\n5. Setup Supabase Auth for user authentication\n6. Create storage buckets for images (profile photos, restaurant images, menu items)",
-        "status": "completed",
+        "content": "Choose ONE backend architecture (Supabase OR Prisma)",
+        "details": "Analyze current usage, recommend primary backend, create migration plan for removing the unused one. Document decision and rationale.",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Implement Restaurant Booking System",
-        "details": "1. Create booking page with date/time picker\n2. Build table availability management system\n3. Implement party size selection (2-8 guests)\n4. Create booking confirmation workflow with email notifications\n5. Build user booking history and management (view, modify, cancel)\n6. Add booking status tracking (pending, confirmed, completed, cancelled)\n7. Implement real-time availability checking",
-        "status": "completed",
+        "content": "Create tiered environment configuration system",
+        "details": "Split .env.example into 3 tiers:\n- Tier 1 (Core): 5 vars - Database, Auth basics\n- Tier 2 (Basic): +8 vars - Payments, Maps\n- Tier 3 (Advanced): +27 vars - Social, Delivery\nCreate separate .env.core, .env.basic, .env.advanced files",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Integrate Stripe Payment Processing",
-        "details": "1. Setup Stripe account and obtain API keys from user\n2. Implement checkout flow for cart orders\n3. Create payment processing with Stripe Elements\n4. Add booking deposit payment option (optional 20% deposit)\n5. Implement payment confirmation and receipt generation\n6. Handle payment webhooks for status updates\n7. Create payment history and invoice management",
-        "status": "completed",
+        "content": "Implement centralized feature flag system",
+        "details": "Create /lib/feature-flags.ts that auto-detects configured services and enables features accordingly. Update components to check feature flags before rendering.",
+        "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Build Order Management System",
-        "details": "1. Create order submission workflow from cart\n2. Implement order status tracking (pending, preparing, ready, delivered, completed)\n3. Build order history page for users\n4. Add order details view with itemized breakdown\n5. Implement order notifications (email/in-app)\n6. Create order cancellation and refund workflow\n7. Add real-time order updates",
-        "status": "completed",
+        "content": "Add centralized rate limit tracking",
+        "details": "Create /lib/rate-limiter.ts with Redis-based tracking for all external APIs (Twitter, Facebook, Google Maps, etc.). Include remaining quota display and helpful error messages.",
+        "status": "pending",
         "priority": "high"
       },
       "5": {
         "id": "5",
-        "content": "Develop Restaurant Admin Dashboard",
-        "details": "1. Create admin authentication and role-based access\n2. Build booking management interface (view, confirm, cancel bookings)\n3. Implement order management dashboard (view orders, update status)\n4. Create menu management (add/edit/delete menu items, update prices)\n5. Add table management (create tables, set availability, time slots)\n6. Implement analytics and reporting (revenue, popular items, booking trends)\n7. Create restaurant profile management (hours, contact, images)",
-        "status": "completed",
-        "priority": "medium"
+        "content": "Consolidate documentation into single entry point",
+        "details": "Create new /docs/README.md as single source of truth. Reorganize existing 20+ docs into logical structure: /features/, /deployment/, /api-reference/. Archive redundant docs.",
+        "status": "pending",
+        "priority": "high"
       },
       "6": {
         "id": "6",
-        "content": "Migrate Frontend to Real Database Integration",
-        "details": "1. Replace all localStorage calls with Supabase queries\n2. Implement real-time data synchronization\n3. Add proper loading states and error handling\n4. Create data caching strategies for performance\n5. Implement optimistic UI updates\n6. Add offline support with sync when online\n7. Test cross-device data consistency",
-        "status": "completed",
-        "priority": "high"
+        "content": "Create setup wizard (Quick Win)",
+        "details": "Build interactive CLI: npm run setup-wizard that asks questions and generates appropriate .env.local with only needed variables based on user's feature choices.",
+        "status": "pending",
+        "priority": "medium"
       },
       "7": {
         "id": "7",
-        "content": "Implement Notification System",
-        "details": "1. Create email notification service using Supabase Edge Functions\n2. Send booking confirmations via email\n3. Send order status updates\n4. Implement payment receipts and invoices\n5. Add promotional email capabilities\n6. Create in-app notification system\n7. Add notification preferences management",
-        "status": "completed",
+        "content": "Create health check endpoint (Quick Win)",
+        "details": "Implement GET /api/health endpoint that checks connectivity and configuration status of all external services (database, redis, stripe, social APIs, etc.).",
+        "status": "pending",
         "priority": "medium"
-      },
-      "8": {
-        "id": "8",
-        "content": "Deploy and Test Complete System",
-        "details": "1. Deploy all Supabase resources (database, edge functions, storage)\n2. Deploy frontend with backend integration\n3. Conduct end-to-end testing (booking flow, payment, orders)\n4. Test admin dashboard functionality\n5. Verify email notifications working\n6. Load testing with multiple concurrent users\n7. Create comprehensive documentation and user guides",
-        "status": "completed",
-        "priority": "high"
       }
     }
   }
