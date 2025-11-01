@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Commented out for development - uncomment for static export builds
-  // output: 'export',
+  // Enabled for static export deployment
+  output: 'export',
   trailingSlash: true,
   images: {
     unoptimized: true,
