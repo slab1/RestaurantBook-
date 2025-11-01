@@ -16,9 +16,7 @@ const nextConfig = {
   },
   // Ensure imgs directory is copied to output
   assetPrefix: '',
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
+  // experimental features removed for compatibility
 }
 
 module.exports = nextConfig

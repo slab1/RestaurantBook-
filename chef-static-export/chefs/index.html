@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Warehouse - Professional Chefs for Your Events</title>
+    <meta name="description" content="Book professional chefs for your events, parties, and special occasions. Discover expert culinary talent in your area.">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/_next/static/css/main.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Header */
+        .header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .header .container { display: flex; align-items: center; justify-content: space-between; padding: 1rem 20px; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #2563eb; }
+        .nav { display: flex; gap: 2rem; list-style: none; }
+        .nav a { text-decoration: none; color: #666; font-weight: 500; transition: color 0.2s; }
+        .nav a:hover, .nav a.active { color: #2563eb; }
+        
+        /* Hero */
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0; text-align: center; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9; }
+        .search-bar { max-width: 600px; margin: 0 auto; display: flex; gap: 1rem; }
+        .search-input { flex: 1; padding: 1rem; border: none; border-radius: 8px; font-size: 1rem; }
+        .search-btn { padding: 1rem 2rem; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .search-btn:hover { background: #059669; }
+        
+        /* Filters */
+        .filters { background: #f8fafc; padding: 2rem 0; border-bottom: 1px solid #e2e8f0; }
+        .filter-container { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .filter-group label { font-weight: 500; color: #374151; }
+        .filter-select { padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; background: white; min-width: 150px; }
+        
+        /* Chefs Grid */
+        .chefs-section { padding: 3rem 0; }
+        .section-title { text-align: center; margin-bottom: 3rem; }
+        .section-title h2 { font-size: 2.5rem; margin-bottom: 1rem; color: #1f2937; }
+        .section-title p { font-size: 1.125rem; color: #6b7280; }
+        .chefs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .chef-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+        .chef-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .chef-image { width: 100%; height: 250px; object-fit: cover; }
+        .chef-content { padding: 1.5rem; }
+        .chef-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
+        .chef-name { font-size: 1.25rem; font-weight: bold; color: #1f2937; }
+        .chef-rating { display: flex; align-items: center; gap: 0.5rem; color: #f59e0b; }
+        .chef-location { color: #6b7280; margin-bottom: 0.5rem; }
+        .chef-specialties { margin-bottom: 1rem; }
+        .specialty-tag { display: inline-block; background: #eff6ff; color: #2563eb; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem; margin: 0.25rem 0.25rem 0.25rem 0; }
+        .chef-bio { color: #6b7280; margin-bottom: 1rem; font-size: 0.875rem; }
+        .chef-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e5e7eb; padding-top: 1rem; }
+        .chef-price { font-size: 1.125rem; font-weight: bold; color: #059669; }
+        .book-btn { background: #2563eb; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s; }
+        .book-btn:hover { background: #1d4ed8; }
+        
+        /* Footer */
+        .footer { background: #1f2937; color: white; padding: 3rem 0 1rem; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .footer-section h3 { margin-bottom: 1rem; }
+        .footer-section ul { list-style: none; }
+        .footer-section ul li { margin-bottom: 0.5rem; }
+        .footer-section a { color: #d1d5db; text-decoration: none; }
+        .footer-section a:hover { color: white; }
+        .footer-bottom { border-top: 1px solid #374151; margin-top: 2rem; padding-top: 1rem; text-align: center; color: #9ca3af; }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .search-bar { flex-direction: column; }
+            .nav { display: none; }
+            .chefs-grid { grid-template-columns: 1fr; }
+            .filter-container { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">Chef Warehouse</div>
+            <nav>
+                <ul class="nav">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/restaurants">Restaurants</a></li>
+                    <li><a href="/chefs" class="active">Chefs</a></li>
+                    <li><a href="/bookings">Bookings</a></li>
+                    <li><a href="/login">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Professional Chefs for Your Events</h1>
+            <p>Discover expert culinary talent for your parties, weddings, and special occasions</p>
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search chefs by name, cuisine, or specialty...">
+                <button class="search-btn" onclick="searchChefs()">Search Chefs</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters">
+        <div class="container">
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="location-filter">Location</label>
+                    <select id="location-filter" class="filter-select">
+                        <option value="">All Locations</option>
+                        <option value="Lagos">Lagos</option>
+                        <option value="Abuja">Abuja</option>
+                        <option value="Port Harcourt">Port Harcourt</option>
+                        <option value="Kano">Kano</option>
+                        <option value="Ibadan">Ibadan</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="specialty-filter">Specialty</label>
+                    <select id="specialty-filter" class="filter-select">
+                        <option value="">All Specialties</option>
+                        <option value="Nigerian">Nigerian</option>
+                        <option value="Italian">Italian</option>
+                        <option value="French">French</option>
+                        <option value="Asian">Asian</option>
+                        <option value="Continental">Continental</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="price-filter">Price Range</label>
+                    <select id="price-filter" class="filter-select">
+                        <option value="">All Prices</option>
+                        <option value="budget">Budget ($50-100)</option>
+                        <option value="mid">Mid-range ($100-200)</option>
+                        <option value="premium">Premium ($200+)</option>
+                    </select>
+                </div>
+                <button class="book-btn" onclick="applyFilters()">Apply Filters</button>
+                <button class="book-btn" onclick="clearFilters()" style="background: #6b7280;">Clear</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chefs Section -->
+    <section class="chefs-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Featured Professional Chefs</h2>
+                <p>Expert culinary professionals ready to make your event unforgettable</p>
+            </div>
+            <div class="chefs-grid" id="chefs-grid">
+                <!-- Chef Cards will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Chef Warehouse</h3>
+                    <p>Connecting you with professional chefs for exceptional culinary experiences.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="/chefs">Find Chefs</a></li>
+                        <li><a href="/bookings">Make Booking</a></li>
+                        <li><a href="/chef-dashboard">Chef Dashboard</a></li>
+                        <li><a href="/admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Chef Warehouse. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Chef data
+        const chefs = [
+            {
+                id: 1,
+                name: "Chef Amara Okafor",
+                specialty: "Nigerian & West African",
+                location: "Lagos",
+                rating: 4.9,
+                reviews: 127,
+                image: "/imgs/modern_japanese_sushi_restaurant_chef_counter.jpg",
+                bio: "Specialist in authentic Nigerian cuisine with 8+ years experience. Expert in jollof rice, suya, and traditional delicacies.",
+                specialties: ["Nigerian", "West African", "Party Catering"],
+                price: "From $120/event",
+                priceRange: "mid"
+            },
+            {
+                id: 2,
+                name: "Chef Marco Rossi",
+                specialty: "Italian & Mediterranean",
+                location: "Abuja",
+                rating: 4.8,
+                reviews: 89,
+                image: "/imgs/authentic_italian_pasta_dinner_wine_cozy_setting.jpg",
+                bio: "Trained in Tuscany, Italy. Master of handmade pasta, pizza, and traditional Italian flavors.",
+                specialties: ["Italian", "Mediterranean", "Fine Dining"],
+                price: "From $180/event",
+                priceRange: "premium"
+            },
+            {
+                id: 3,
+                name: "Chef Fatima Hassan",
+                specialty: "Middle Eastern & Continental",
+                location: "Port Harcourt",
+                rating: 4.7,
+                reviews: 156,
+                image: "/imgs/elegant_french_bistro_wine_atmosphere.jpg",
+                bio: "Expert in Lebanese, Turkish, and Continental cuisines. Specializes in elegant presentation and fusion dishes.",
+                specialties: ["Middle Eastern", "Continental", "Fusion"],
+                price: "From $150/event",
+                priceRange: "mid"
+            },
+            {
+                id: 4,
+                name: "Chef David Chen",
+                specialty: "Asian & Fusion",
+                location: "Lagos",
+                rating: 4.9,
+                reviews: 203,
+                image: "/imgs/modern_japanese_sushi_restaurant_chef_presentation.jpg",
+                bio: "Master of Chinese, Japanese, and Thai cuisines. Expert in sushi, dim sum, and Asian fusion.",
+                specialties: ["Asian", "Japanese", "Chinese", "Thai"],
+                price: "From $200/event",
+                priceRange: "premium"
+            },
+            {
+                id: 5,
+                name: "Chef Grace Johnson",
+                specialty: "American & BBQ",
+                location: "Kano",
+                rating: 4.6,
+                reviews: 94,
+                image: "/imgs/family_friendly_american_comfort_food_spread.jpg",
+                bio: "Specialist in American BBQ, comfort food, and Southern cuisine. Perfect for large events and parties.",
+                specialties: ["American", "BBQ", "Comfort Food"],
+                price: "From $80/event",
+                priceRange: "budget"
+            },
+            {
+                id: 6,
+                name: "Chef Pierre Dubois",
+                specialty: "French & European",
+                location: "Ibadan",
+                rating: 4.8,
+                reviews: 112,
+                image: "/imgs/elegant_french_bistro_wine_bar.jpg",
+                bio: "Trained in Paris. Master of classical French techniques and European delicacies.",
+                specialties: ["French", "European", "Fine Dining"],
+                price: "From $220/event",
+                priceRange: "premium"
+            },
+            {
+                id: 7,
+                name: "Chef Sarah Mitchell",
+                specialty: "Vegan & Health-Conscious",
+                location: "Lagos",
+                rating: 4.7,
+                reviews: 78,
+                image: "/imgs/elegant_upscale_fine_dining_restaurant_interior.jpg",
+                bio: "Expert in plant-based cuisine and healthy eating. Specializes in gourmet vegan and vegetarian dishes.",
+                specialties: ["Vegan", "Vegetarian", "Health Food"],
+                price: "From $130/event",
+                priceRange: "mid"
+            },
+            {
+                id: 8,
+                name: "Chef Raj Patel",
+                specialty: "Indian & Pakistani",
+                location: "Abuja",
+                rating: 4.8,
+                reviews: 145,
+                image: "/imgs/authentic_indian_chicken_tikka_masala_rice_naan.jpg",
+                bio: "Master of authentic Indian and Pakistani cuisine. Expert in curries, tandoori, and spice blending.",
+                specialties: ["Indian", "Pakistani", "Curry"],
+                price: "From $110/event",
+                priceRange: "mid"
+            },
+            {
+                id: 9,
+                name: "Chef Carlos Rodriguez",
+                specialty: "Latin American",
+                location: "Port Harcourt",
+                rating: 4.6,
+                reviews: 67,
+                image: "/imgs/delicious_shrimp_pasta_outdoor_dining_italian.jpg",
+                bio: "Specialist in Mexican, Brazilian, and Latin American cuisines. Expert in grilling and outdoor cooking.",
+                specialties: ["Mexican", "Brazilian", "Latin", "BBQ"],
+                price: "From $95/event",
+                priceRange: "budget"
+            },
+            {
+                id: 10,
+                name: "Chef Isabella Garcia",
+                specialty: "Spanish & Tapas",
+                location: "Lagos",
+                rating: 4.7,
+                reviews: 83,
+                image: "/imgs/gourmet_italian_pasta_dish_white_wine_restaurant.jpg",
+                bio: "Expert in Spanish cuisine, tapas, and Mediterranean flavors. Specializes in seafood and paella.",
+                specialties: ["Spanish", "Tapas", "Seafood"],
+                price: "From $140/event",
+                priceRange: "mid"
+            },
+            {
+                id: 11,
+                name: "Chef Hiroshi Tanaka",
+                specialty: "Japanese & Sushi",
+                location: "Abuja",
+                rating: 4.9,
+                reviews: 189,
+                image: "/imgs/modern_japanese_sushi_restaurant_bar_chefs.jpg",
+                bio: "Master sushi chef with 15+ years experience. Expert in traditional Japanese techniques and presentation.",
+                specialties: ["Japanese", "Sushi", "Seafood"],
+                price: "From $250/event",
+                priceRange: "premium"
+            },
+            {
+                id: 12,
+                name: "Chef Antoinette Laurent",
+                specialty: "Pastry & Desserts",
+                location: "Port Harcourt",
+                rating: 4.8,
+                reviews: 134,
+                image: "/imgs/intimate_french_wine_tasting_bistro_atmosphere.jpg",
+                bio: "Master pastry chef specializing in French desserts, wedding cakes, and custom甜品.",
+                specialties: ["Pastry", "Desserts", "Cakes"],
+                price: "From $160/event",
+                priceRange: "mid"
+            }
+        ];
+
+        let filteredChefs = [...chefs];
+
+        function renderChefs() {
+            const grid = document.getElementById('chefs-grid');
+            grid.innerHTML = filteredChefs.map(chef => `
+                <div class="chef-card">
+                    <img src="${chef.image}" alt="${chef.name}" class="chef-image" onerror="this.src='/placeholder.svg'">
+                    <div class="chef-content">
+                        <div class="chef-header">
+                            <div class="chef-name">${chef.name}</div>
+                            <div class="chef-rating">
+                                <span>⭐ ${chef.rating}</span>
+                                <span>(${chef.reviews})</span>
+                            </div>
+                        </div>
+                        <div class="chef-location">📍 ${chef.location}</div>
+                        <div class="chef-specialties">
+                            ${chef.specialties.map(s => `<span class="specialty-tag">${s}</span>`).join('')}
+                        </div>
+                        <div class="chef-bio">${chef.bio}</div>
+                        <div class="chef-footer">
+                            <div class="chef-price">${chef.price}</div>
+                            <a href="/chefs/${chef.id}/" class="book-btn">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchChefs() {
+            const searchTerm = document.querySelector('.search-input').value.toLowerCase();
+            filteredChefs = chefs.filter(chef => 
+                chef.name.toLowerCase().includes(searchTerm) ||
+                chef.specialty.toLowerCase().includes(searchTerm) ||
+                chef.specialties.some(s => s.toLowerCase().includes(searchTerm))
+            );
+            renderChefs();
+        }
+
+        function applyFilters() {
+            const location = document.getElementById('location-filter').value;
+            const specialty = document.getElementById('specialty-filter').value;
+            const priceRange = document.getElementById('price-filter').value;
+
+            filteredChefs = chefs.filter(chef => {
+                const locationMatch = !location || chef.location === location;
+                const specialtyMatch = !specialty || chef.specialty.includes(specialty);
+                const priceMatch = !priceRange || chef.priceRange === priceRange;
+                return locationMatch && specialtyMatch && priceMatch;
+            });
+
+            renderChefs();
+        }
+
+        function clearFilters() {
+            document.getElementById('location-filter').value = '';
+            document.getElementById('specialty-filter').value = '';
+            document.getElementById('price-filter').value = '';
+            document.querySelector('.search-input').value = '';
+            filteredChefs = [...chefs];
+            renderChefs();
+        }
+
+        // Initialize
+        renderChefs();
+
+        // Add search on Enter key
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchChefs();
+            }
+        });
+    </script>
+</body>
+</html>
