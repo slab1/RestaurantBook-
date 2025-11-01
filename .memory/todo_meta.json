@@ -4,8 +4,8 @@
       "1": {
         "id": "1",
         "content": "Setup PostgreSQL database connection",
-        "details": "Get free database from Neon.tech, configure DATABASE_URL in .env.local, run Prisma migrations",
-        "status": "pending",
+        "details": "✅ Generated Prisma client successfully\n⏳ Waiting for user to:\n1. Set up Neon.tech account and get DATABASE_URL\n2. Update .env.local with actual connection string\n3. Run: npx prisma migrate deploy",
+        "status": "in_progress",
         "priority": "high"
       },
       "2": {
