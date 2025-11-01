@@ -16,6 +16,7 @@ enum UserRole {
   RESTAURANT_OWNER
   ADMIN
   STAFF
+  CHEF
 }
 
 enum BookingStatus {
@@ -187,6 +188,11 @@ model User {
   loyaltyEvents               LoyaltyEvent[]
   partnerRewardRedemptions    PartnerRewardRedemption[]
   loyaltyRedemptions          LoyaltyRedemption[]
+
+  // ============ CHEF WAREHOUSE SYSTEM RELATIONS ============
+  chef                        Chef?
+  chefBookingsAsCustomer      ChefBooking[]        @relation("CustomerBookings")
+  chefRatingsGiven            ChefRating[]
 
   @@map("users")
 }
@@ -1891,3 +1897,372 @@ model ARSession {
   @@index([isActive])
   @@map("ar_sessions")
 }
+
+
+// ============ CHEF WAREHOUSE SYSTEM ============
+// "Uber for Chefs" marketplace integration
+
+enum ChefStatus {
+  PENDING        // Pending verification
+  VERIFIED       // Verified and active
+  SUSPENDED      // Temporarily suspended
+  INACTIVE       // Deactivated
+  REJECTED       // Application rejected
+}
+
+enum ChefBookingStatus {
+  PENDING        // Waiting for chef acceptance
+  ACCEPTED       // Chef accepted the booking
+  DECLINED       // Chef declined
+  CONFIRMED      // Payment confirmed
+  IN_PROGRESS    // Event in progress
+  COMPLETED      // Event completed
+  CANCELLED      // Cancelled by customer or chef
+  NO_SHOW        // Customer or chef no-show
+}
+
+enum ChefEventType {
+  PRIVATE_DINING      // Private dining experience
+  BIRTHDAY_PARTY      // Birthday celebrations
+  WEDDING             // Wedding events
+  CORPORATE_EVENT     // Corporate catering
+  COOKING_CLASS       // Cooking lessons
+  MEAL_PREP           // Meal preparation service
+  HOLIDAY_DINNER      // Holiday special dinners
+  ANNIVERSARY         // Anniversary celebrations
+  BRUNCH_EVENT        // Brunch services
+  COCKTAIL_PARTY      // Cocktail and appetizers
+  BBQ_OUTDOOR         // Outdoor BBQ events
+  THEMED_DINNER       // Themed dining experience
+  OTHER               // Other event types
+}
+
+enum ChefServiceType {
+  ON_SITE_COOKING     // Chef cooks at customer location
+  MEAL_DELIVERY       // Pre-cooked meal delivery
+  COOKING_CLASS       // Teaching/instruction
+  CONSULTATION        // Menu planning and consultation
+}
+
+// Chef Profile Model
+model Chef {
+  id                  String        @id @default(cuid())
+  userId              String        @unique
+  businessName        String? // Optional business/brand name
+  bio                 String?       @db.Text
+  yearsOfExperience   Int
+  specialties         String[] // Nigerian, Italian, Chinese, etc.
+  certifications      String[] // Professional certifications
+  hourlyRate          Decimal       @db.Decimal(10, 2)
+  eventMinimumCharge  Decimal       @db.Decimal(10, 2) // Minimum charge per event
+  currency            String        @default("NGN")
+  travelRadiusKm      Decimal       @default(25) @db.Decimal(5, 2)
+  status              ChefStatus    @default(PENDING)
+  isVerified          Boolean       @default(false)
+  isFeatured          Boolean       @default(false)
+  isPremium           Boolean       @default(false)
+  rating              Float         @default(0)
+  totalReviews        Int           @default(0)
+  totalBookings       Int           @default(0)
+  completedBookings   Int           @default(0)
+  cancelledBookings   Int           @default(0)
+  responseTime        Int? // Average response time in minutes
+  acceptanceRate      Float         @default(0) // Percentage of accepted bookings
+  
+  // Location
+  city                String
+  state               String
+  country             String        @default("NG")
+  address             String?
+  latitude            Float?
+  longitude           Float?
+  
+  // Service details
+  serviceTypes        String[] // on_site, delivery, class, consultation
+  eventTypes          String[] // birthday, wedding, corporate, etc.
+  minPartySize        Int           @default(1)
+  maxPartySize        Int           @default(50)
+  
+  // Availability preferences
+  availableWeekdays   String[] // MONDAY, TUESDAY, etc.
+  minAdvanceBooking   Int           @default(24) // Hours notice required
+  maxAdvanceBooking   Int           @default(90) // Days max advance booking
+  
+  // Media
+  profileImage        String?
+  coverImage          String?
+  videoIntro          String? // Video introduction URL
+  
+  // Financial
+  bankAccountName     String?
+  bankAccountNumber   String?
+  bankName            String?
+  commissionRate      Decimal       @default(0.12) @db.Decimal(4, 2) // Platform commission (12%)
+  totalEarnings       Decimal       @default(0) @db.Decimal(12, 2)
+  pendingPayouts      Decimal       @default(0) @db.Decimal(12, 2)
+  
+  // Verification
+  verificationDocuments String[] // ID, certificates, etc.
+  verifiedAt          DateTime?
+  verifiedBy          String? // Admin user ID
+  backgroundCheckDate DateTime?
+  insuranceExpiry     DateTime?
+  
+  // Settings
+  instantBooking      Boolean       @default(false)
+  requiresDeposit     Boolean       @default(true)
+  depositPercentage   Decimal       @default(0.30) @db.Decimal(3, 2) // 30% deposit
+  cancellationPolicy  String?       @db.Text
+  languages           String[]      @default(["en"])
+  
+  // Metadata
+  metadata            Json?
+  isActive            Boolean       @default(true)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  lastActiveAt        DateTime?
+  
+  // Relations
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings            ChefBooking[]
+  availability        ChefAvailability[]
+  portfolio           ChefPortfolio[]
+  ratings             ChefRating[]
+  blockedDates        ChefBlockedDate[]
+  
+  @@index([status])
+  @@index([city, state])
+  @@index([rating])
+  @@index([hourlyRate])
+  @@index([specialties])
+  @@index([isFeatured])
+  @@index([isVerified])
+  @@index([latitude, longitude])
+  @@map("chefs")
+}
+
+// Chef Booking Model
+model ChefBooking {
+  id                    String             @id @default(cuid())
+  bookingNumber         String             @unique // Human-readable booking number
+  
+  // Parties
+  customerId            String
+  chefId                String
+  
+  // Event details
+  eventType             ChefEventType
+  serviceType           ChefServiceType
+  eventDate             DateTime
+  startTime             String // "18:00"
+  endTime               String // "22:00"
+  durationHours         Decimal            @db.Decimal(4, 2)
+  partySize             Int
+  
+  // Location
+  eventAddress          String
+  eventCity             String
+  eventState            String
+  eventZipCode          String?
+  eventCountry          String             @default("NG")
+  eventLatitude         Float?
+  eventLongitude        Float?
+  travelDistance        Decimal?           @db.Decimal(6, 2) // km from chef location
+  
+  // Service requirements
+  cuisinePreference     String[]
+  menuDetails           String?            @db.Text
+  dietaryRestrictions   String[]
+  allergies             String[]
+  specialRequests       String?            @db.Text
+  equipmentProvided     Boolean            @default(false) // Kitchen equipment available
+  equipmentNeeded       String[]
+  servingStyle          String? // buffet, plated, family-style
+  
+  // Pricing
+  basePrice             Decimal            @db.Decimal(10, 2)
+  travelFee             Decimal            @default(0) @db.Decimal(8, 2)
+  equipmentFee          Decimal            @default(0) @db.Decimal(8, 2)
+  additionalFees        Json? // { feeName: amount }
+  discount              Decimal            @default(0) @db.Decimal(8, 2)
+  subtotal              Decimal            @db.Decimal(10, 2)
+  platformFee           Decimal            @db.Decimal(8, 2)
+  tax                   Decimal            @default(0) @db.Decimal(8, 2)
+  totalAmount           Decimal            @db.Decimal(10, 2)
+  currency              String             @default("NGN")
+  
+  // Payment
+  depositAmount         Decimal?           @db.Decimal(10, 2)
+  depositPaid           Boolean            @default(false)
+  depositPaidAt         DateTime?
+  remainingAmount       Decimal?           @db.Decimal(10, 2)
+  fullPayment           Boolean            @default(false)
+  fullPaymentAt         DateTime?
+  paymentMethod         String? // card, bank_transfer, cash
+  stripePaymentIntent   String?
+  
+  // Status and tracking
+  status                ChefBookingStatus  @default(PENDING)
+  requestedAt           DateTime           @default(now())
+  respondedAt           DateTime?
+  confirmedAt           DateTime?
+  completedAt           DateTime?
+  cancelledAt           DateTime?
+  cancelledBy           String? // customer, chef, admin
+  cancellationReason    String?            @db.Text
+  refundAmount          Decimal?           @db.Decimal(10, 2)
+  refundedAt            DateTime?
+  
+  // Communication
+  chefResponseTime      Int? // Minutes to respond
+  lastMessageAt         DateTime?
+  messagesCount         Int                @default(0)
+  
+  // Post-event
+  customerRated         Boolean            @default(false)
+  chefRated             Boolean            @default(false)
+  customerTip           Decimal?           @db.Decimal(8, 2)
+  
+  // Metadata
+  metadata              Json?
+  source                String             @default("web") // web, mobile, admin
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  
+  // Relations
+  customer              User               @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: Cascade)
+  chef                  Chef               @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  ratings               ChefRating[]
+  
+  @@index([customerId])
+  @@index([chefId])
+  @@index([status])
+  @@index([eventDate])
+  @@index([eventCity, eventState])
+  @@index([bookingNumber])
+  @@index([createdAt])
+  @@map("chef_bookings")
+}
+
+// Chef Availability Schedule
+model ChefAvailability {
+  id                String      @id @default(cuid())
+  chefId            String
+  dayOfWeek         DayOfWeek
+  isAvailable       Boolean     @default(true)
+  startTime         String // "09:00"
+  endTime           String // "23:00"
+  maxBookingsPerDay Int         @default(2)
+  notes             String?
+  isRecurring       Boolean     @default(true)
+  effectiveFrom     DateTime    @default(now())
+  effectiveUntil    DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  // Relations
+  chef              Chef        @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  
+  @@unique([chefId, dayOfWeek])
+  @@index([chefId])
+  @@index([dayOfWeek])
+  @@map("chef_availability")
+}
+
+// Chef Blocked Dates (holidays, personal time off)
+model ChefBlockedDate {
+  id          String    @id @default(cuid())
+  chefId      String
+  blockedDate DateTime
+  reason      String?
+  isAllDay    Boolean   @default(true)
+  startTime   String? // If not all day
+  endTime     String?
+  createdAt   DateTime  @default(now())
+  
+  // Relations
+  chef        Chef      @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  
+  @@index([chefId])
+  @@index([blockedDate])
+  @@map("chef_blocked_dates")
+}
+
+// Chef Portfolio - Work samples and photos
+model ChefPortfolio {
+  id            String   @id @default(cuid())
+  chefId        String
+  title         String
+  description   String?  @db.Text
+  images        String[] // Array of image URLs
+  eventType     String? // Type of event showcased
+  cuisine       String? // Cuisine type
+  partySize     Int?
+  eventDate     DateTime?
+  isPublic      Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  viewCount     Int      @default(0)
+  likeCount     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  chef          Chef     @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  
+  @@index([chefId])
+  @@index([isPublic])
+  @@index([isFeatured])
+  @@map("chef_portfolio")
+}
+
+// Chef Ratings and Reviews
+model ChefRating {
+  id                  String        @id @default(cuid())
+  bookingId           String
+  customerId          String
+  chefId              String
+  
+  // Ratings (1-5 stars)
+  overallRating       Int
+  foodQualityRating   Int?
+  professionalismRating Int?
+  punctualityRating   Int?
+  communicationRating Int?
+  valueRating         Int?
+  
+  // Review
+  comment             String?       @db.Text
+  images              String[] // Customer photos
+  experienceHighlights String[] // Tags like "excellent", "creative", "punctual"
+  
+  // Chef response
+  chefResponse        String?       @db.Text
+  chefRespondedAt     DateTime?
+  
+  // Moderation
+  isVerified          Boolean       @default(false)
+  isPublic            Boolean       @default(true)
+  isHidden            Boolean       @default(false)
+  flagCount           Int           @default(0)
+  helpfulVotes        Int           @default(0)
+  
+  // Metadata
+  wouldRecommend      Boolean?
+  wouldBookAgain      Boolean?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  
+  // Relations
+  booking             ChefBooking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customer            User          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  chef                Chef          @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  
+  @@unique([bookingId])
+  @@index([chefId])
+  @@index([customerId])
+  @@index([overallRating])
+  @@index([createdAt])
+  @@map("chef_ratings")
+}
+

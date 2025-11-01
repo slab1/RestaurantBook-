@@ -1,0 +1,29 @@
+📄 Extracted from page: Admin Dashboard - RestaurantBook
+URL: http://localhost:3001/admin/login/
+
+Extracted content:
+```json
+{
+    "title": "Admin Dashboard - RestaurantBook",
+    "url": "http://localhost:3001/admin/login/",
+    "summary": "This page, titled 'Admin Dashboard - RestaurantBook', clearly states 'Admin Access Required' and denies entry to the user. It explicitly mentions that administrator privileges are needed to access this area. The page does not present any login forms or error messages related to a login attempt, but rather acts as a gatekeeper for unauthorized users, redirecting them to a login page or the main homepage.",
+    "key_points": [
+        "The page is identified as the 'Admin Dashboard - RestaurantBook'.",
+        "Access is explicitly denied with the message 'Admin Access Required'.",
+        "The user is informed that 'You need administrator privileges to access this area'.",
+        "There are no visible login fields or direct error messages indicating a problem with the login *functionality* itself, only a lack of authorization.",
+        "The page provides navigation options to either 'Go to Admin Login' or 'Return to Homepage'."
+    ],
+    "relevant_links": [
+        {
+            "text": "Go to Admin Login",
+            "href": "/admin/login"
+        },
+        {
+            "text": "Return to Homepage",
+            "href": "/"
+        }
+    ],
+    "file_name": "admin_dashboard_access_required.json"
+}
+```

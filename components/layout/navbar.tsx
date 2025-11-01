@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, LogOut, Settings, Calendar, Building2, Zap, ShoppingCart } from 'lucide-react'
+import { User, LogOut, Settings, Calendar, Building2, Zap, ShoppingCart, ChefHat } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
 import { Badge } from '@/components/ui/badge'
 
@@ -30,6 +30,13 @@ export function Navbar() {
           <div className="flex items-center space-x-4">
             <Link href="/restaurants">
               <Button variant="ghost">Restaurants</Button>
+            </Link>
+            
+            <Link href="/chefs">
+              <Button variant="ghost" className="flex items-center gap-2">
+                <ChefHat className="h-4 w-4" />
+                Chef Warehouse
+              </Button>
             </Link>
 
             {user ? (

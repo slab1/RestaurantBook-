@@ -15,6 +15,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChefHat,
 } from 'lucide-react'
 
 const navigation = [
@@ -32,6 +33,11 @@ const navigation = [
     name: 'Restaurant Management',
     href: '/admin/restaurants',
     icon: Store,
+  },
+  {
+    name: 'Chef Management',
+    href: '/admin/chefs',
+    icon: ChefHat,
   },
   {
     name: 'Booking Oversight',
