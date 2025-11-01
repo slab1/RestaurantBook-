@@ -15,6 +15,13 @@ interface MockChef extends Chef {
   reviews: ChefReview[]
 }
 
+// Generate static paths for all chefs (required for static export)
+export async function generateStaticParams() {
+  return mockChefs.map((chef) => ({
+    id: chef.id,
+  }))
+}
+
 export default function ChefDetailPage() {
   const params = useParams()
   const router = useRouter()
