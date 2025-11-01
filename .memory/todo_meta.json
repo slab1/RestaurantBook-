@@ -3,52 +3,38 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Choose ONE backend architecture (Supabase OR Prisma)",
-        "details": "Analyze current usage, recommend primary backend, create migration plan for removing the unused one. Document decision and rationale.",
-        "status": "completed",
+        "content": "Setup PostgreSQL database connection",
+        "details": "Get free database from Neon.tech, configure DATABASE_URL in .env.local, run Prisma migrations",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Create tiered environment configuration system",
-        "details": "Split .env.example into 3 tiers:\n- Tier 1 (Core): 5 vars - Database, Auth basics\n- Tier 2 (Basic): +8 vars - Payments, Maps\n- Tier 3 (Advanced): +27 vars - Social, Delivery\nCreate separate .env.core, .env.basic, .env.advanced files",
-        "status": "completed",
+        "content": "Implement Chef Warehouse Booking System",
+        "details": "1. Create chef-related database models (Chef, ChefBooking, ChefAvailability, etc.) 2. Build chef registration and verification system 3. Create chef booking calendar and availability management 4. Build customer-facing chef search and booking interface 5. Integrate payment processing for chef services 6. Add admin chef management interface",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Implement centralized feature flag system",
-        "details": "Create /lib/feature-flags.ts that auto-detects configured services and enables features accordingly. Update components to check feature flags before rendering.",
-        "status": "completed",
-        "priority": "high"
-      },
-      "4": {
-        "id": "4",
-        "content": "Add centralized rate limit tracking",
-        "details": "Create /lib/rate-limiter.ts with Redis-based tracking for all external APIs (Twitter, Facebook, Google Maps, etc.). Include remaining quota display and helpful error messages.",
-        "status": "completed",
-        "priority": "high"
-      },
-      "5": {
-        "id": "5",
-        "content": "Consolidate documentation into single entry point",
-        "details": "Create new /docs/README.md as single source of truth. Reorganize existing 20+ docs into logical structure: /features/, /deployment/, /api-reference/. Archive redundant docs.",
-        "status": "completed",
-        "priority": "high"
-      },
-      "6": {
-        "id": "6",
-        "content": "Create setup wizard (Quick Win)",
-        "details": "Build interactive CLI: npm run setup-wizard that asks questions and generates appropriate .env.local with only needed variables based on user's feature choices.",
+        "content": "Enhance Admin Dashboard with Chef Management",
+        "details": "1. Add /app/admin/chefs/ route for chef management 2. Create chef analytics and reporting 3. Add chef verification workflow 4. Build chef booking oversight system 5. Add revenue analytics for chef services",
         "status": "pending",
         "priority": "medium"
       },
-      "7": {
-        "id": "7",
-        "content": "Create health check endpoint (Quick Win)",
-        "details": "Implement GET /api/health endpoint that checks connectivity and configuration status of all external services (database, redis, stripe, social APIs, etc.).",
-        "status": "completed",
+      "4": {
+        "id": "4",
+        "content": "Implement CRM System Enhancements",
+        "details": "1. Add CRM models (CustomerTag, Lead, CRMNote, SalesActivity) 2. Create lead tracking and conversion funnel 3. Build customer segmentation and tagging system 4. Add sales activity logging and notes 5. Create marketing campaign tracking",
+        "status": "pending",
         "priority": "medium"
+      },
+      "5": {
+        "id": "5",
+        "content": "Enhance Location and Geospatial Features",
+        "details": "1. Set up PostGIS for advanced geospatial queries 2. Create location zones and delivery areas 3. Implement location-based search and filtering 4. Add Google Maps integration 5. Build delivery zone management system",
+        "status": "pending",
+        "priority": "low"
       }
     }
   }
